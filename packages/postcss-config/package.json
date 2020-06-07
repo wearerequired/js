@@ -20,7 +20,7 @@
   "bugs": {
     "url": "https://github.com/wearerequired/js/issues"
   },
-  "homepage": "https://github.com/wearerequired/js/packages/postcss-config#readme",
+  "homepage": "https://github.com/wearerequired/js/tree/master/packages/postcss-config#readme",
   "dependencies": {
     "css-mqpacker": "^7.0.0",
     "cssnano": "^4.1.10",
