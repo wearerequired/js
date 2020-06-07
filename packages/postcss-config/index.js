@@ -21,13 +21,13 @@ module.exports = ( ctx ) => {
 		},
 	};
 
-	if ( 'development' === ctx.env ) {
-		config.map = true;
-	} else {
+	if ( 'production' === ctx.env ) {
 		config.map = false;
 		config.plugins.cssnano = {
 			safe: true,
 		};
+	} else {
+		config.map = true;
 	}
 
 	return config;
