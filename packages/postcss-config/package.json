@@ -1,0 +1,36 @@
+{
+  "name": "@wearerequired/postcss-config",
+  "version": "0.0.0",
+  "description": "Shareable PostCSS config used by @wearerequired.",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wearerequired/js.git"
+  },
+  "keywords": [
+    "postcss",
+    "postcss-config",
+    "css"
+  ],
+  "author": {
+    "name": "required gmbh",
+    "email": "info@required.com",
+    "url": "https://required.com"
+  },
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/wearerequired/js/issues"
+  },
+  "homepage": "https://github.com/wearerequired/js/packages/postcss-config#readme",
+  "dependencies": {
+    "css-mqpacker": "^7.0.0",
+    "cssnano": "^4.1.10",
+    "postcss-hexrgba": "^2.0.0",
+    "postcss-import": "^12.0.1",
+    "postcss-mixins": "^6.2.3",
+    "postcss-nested": "^4.2.1",
+    "postcss-preset-env": "^6.7.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "name": "@wearerequired/js",
+  "private": true,
+  "author": {
+    "name": "required gmbh",
+    "email": "info@required.com",
+    "url": "https://required.com"
+  },
+  "devDependencies": {
+    "@wearerequired/eslint-config": "^1.5.0",
+    "@wordpress/eslint-plugin": "^6.1.0",
+    "eslint": "^6.8.0",
+    "lerna": "^3.22.0"
+  },
+  "scripts": {
+    "publish:check": "lerna updated",
+    "publish:dev": "lerna publish --dist-tag next",
+    "publish:patch": "lerna publish --dist-tag patch",
+    "publish:prod": "lerna publish"
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "packages": [
+    "packages/*"
+  ],
+  "version": "independent",
+  "command": {
+    "version": {
+      "allowBranch": "master",
+      "message": "Publish",
+      "signGitTag": true
+    }
+  },
+  "ignoreChanges": [
+    "**/CHANGELOG.md"
+  ]
+}
