@@ -1,6 +1,6 @@
 {
   "name": "@wearerequired/postcss-config",
-  "version": "0.1.0-alpha.0",
+  "version": "0.1.0-alpha.1",
   "description": "Shareable PostCSS config used by @wearerequired.",
   "repository": {
     "type": "git",
