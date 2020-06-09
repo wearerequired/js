@@ -7,7 +7,7 @@ Shareable PostCSS config used by @wearerequired.
 Install the package:
 
 ```bash
-npm install @wearerequired/postcss-config --save
+npm i -D @wearerequired/postcss-config
 ```
 
 ## Usage
