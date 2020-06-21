@@ -1,6 +1,6 @@
 {
   "name": "@wearerequired/browserslist-config",
-  "version": "0.1.1",
+  "version": "0.1.0",
   "description": "Shareable Browserslist config used by @wearerequired.",
   "repository": {
     "type": "git",
@@ -21,7 +21,6 @@
     "url": "https://github.com/wearerequired/js/issues"
   },
   "homepage": "https://github.com/wearerequired/js/tree/master/packages/browserslist-config#readme",
-  "dependencies": {},
   "publishConfig": {
     "access": "public"
   }
