@@ -1,0 +1,28 @@
+{
+  "name": "@wearerequired/browserslist-config",
+  "version": "0.1.1",
+  "description": "Shareable Browserslist config used by @wearerequired.",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wearerequired/js.git"
+  },
+  "keywords": [
+    "browserslist",
+    "browserslist-config",
+    "css"
+  ],
+  "author": {
+    "name": "required gmbh",
+    "email": "info@required.com",
+    "url": "https://required.com"
+  },
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/wearerequired/js/issues"
+  },
+  "homepage": "https://github.com/wearerequired/js/tree/master/packages/browserslist-config#readme",
+  "dependencies": {},
+  "publishConfig": {
+    "access": "public"
+  }
+}
