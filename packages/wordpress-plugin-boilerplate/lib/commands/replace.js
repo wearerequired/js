@@ -28,7 +28,15 @@ async function replaceFiles( command ) {
 		return true;
 	};
 
-	const { pluginName, pluginSlug, githubSlug } = await inquirer.prompt( [
+	const validatePHPNamespace = async ( input ) => {
+		if ( /[^A-Za-z0-9_\\]/.test( input ) ) {
+			return 'Only alphanumeric characters, backslashes and underscores are allowed.';
+		}
+
+		return true;
+	};
+
+	const { pluginName, pluginSlug, phpNamespace, githubSlug } = await inquirer.prompt( [
 		{
 			type: 'input',
 			name: 'pluginName',
@@ -41,6 +49,13 @@ async function replaceFiles( command ) {
 			default: ( answers ) => paramCase( answers.pluginName ),
 			message: 'Enter the slug of the plugin:',
 			validate: validateSlug,
+		},
+		{
+			type: 'input',
+			name: 'phpNamespace',
+			default: ( answers ) => 'Required\\' + pascalCase( answers.pluginSlug ),
+			message: 'Enter the PHP namespace of the plugin:',
+			validate: validatePHPNamespace,
 		},
 		{
 			type: 'input',
@@ -102,17 +117,17 @@ async function replaceFiles( command ) {
 			WORKING_DIR + '/assets/js/src/**/*.js',
 		],
 		from: [
-			/Plugin Name/g,
-			/Plugin name/g,
-			/PluginName/g,
+			/Plugin Name([^:])/g, // Ignore the colon so that in "Plugin Name: Plugin Name" only the second is replaced.
+			/Required\\PluginName/g,
+			/Required\\\\PluginName\\\\/g,
 			/plugin-name/g,
 			/plugin_name/g,
 			/wordpress-plugin-boilerplate/g,
 		],
 		to: [
-			pluginName,
-			pluginName,
-			pascalCase( pluginSlug ),
+			pluginName + '$1',
+			phpNamespace,
+			phpNamespace.replace( /\\/g, '\\\\' ),
 			pluginSlug,
 			snakeCase( pluginSlug ),
 			githubSlug,
