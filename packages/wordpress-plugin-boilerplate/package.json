@@ -1,0 +1,41 @@
+{
+  "name": "@wearerequired/wordpress-plugin-boilerplate",
+  "version": "0.0.0",
+  "description": "Create a WordPress plugin.",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wearerequired/js.git"
+  },
+  "keywords": [
+    "cli",
+    "wordpress"
+  ],
+  "author": {
+    "name": "required gmbh",
+    "email": "info@required.com",
+    "url": "https://required.com"
+  },
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/wearerequired/js/issues"
+  },
+  "homepage": "https://github.com/wearerequired/js/tree/master/packages/wordpress-plugin-boilerplate#readme",
+  "dependencies": {
+    "chalk": "^4.1.0",
+    "change-case": "^4.1.1",
+    "commander": "^5.1.0",
+    "inquirer": "^7.2.0",
+    "ora": "^4.0.4",
+    "replace-in-file": "^6.1.0",
+    "simple-git": "^2.9.0"
+  },
+  "engines": {
+    "node": ">=10.0"
+  },
+  "bin": {
+    "wordpress-plugin-boilerplate": "./bin/wordpress-plugin-boilerplate.js"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}
