@@ -96,7 +96,7 @@ async function replaceFiles( command ) {
 			WORKING_DIR + '/composer.json',
 			WORKING_DIR + '/package.json',
 			WORKING_DIR + '/phpcs.xml.dist',
-			WORKING_DIR + '/.eslintrc.js.js',
+			WORKING_DIR + '/.eslintrc.js',
 			WORKING_DIR + '/' + pluginSlug + '.php',
 			WORKING_DIR + '/inc/**/*.php',
 			WORKING_DIR + '/assets/js/src/**/*.js',
