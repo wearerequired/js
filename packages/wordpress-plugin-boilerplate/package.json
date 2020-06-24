@@ -32,9 +32,7 @@
   "engines": {
     "node": ">=10.0"
   },
-  "bin": {
-    "wordpress-plugin-boilerplate": "./bin/wordpress-plugin-boilerplate.js"
-  },
+  "bin": "./bin/wordpress-plugin-boilerplate.js",
   "publishConfig": {
     "access": "public"
   }
