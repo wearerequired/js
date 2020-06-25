@@ -70,9 +70,13 @@ async function replaceFiles( command ) {
 
 	const { isReady } = await inquirer.prompt( [
 		{
-			type: 'confirm',
+			type: 'expand',
 			name: 'isReady',
-			default: true,
+			default: 2, // default to help in order to avoid clicking straight through
+			choices: [
+				{ key: 'y', name: 'Yes', value: true },
+				{ key: 'n', name: 'No', value: false },
+			],
 			message:
 				'Start rewriting the files for ' + pluginName + ' with slug ' + pluginSlug + '?',
 		},
