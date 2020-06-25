@@ -87,7 +87,10 @@ async function replaceFiles( command ) {
 
 	if ( ! command.dryRun ) {
 		try {
-			fs.rename( WORKING_DIR + '/plugin-name.php', WORKING_DIR + '/' + pluginSlug + '.php' );
+			await fs.rename(
+				WORKING_DIR + '/plugin-name.php',
+				WORKING_DIR + '/' + pluginSlug + '.php'
+			);
 		} catch ( e ) {
 			log( format.error( 'Could not rename file: ' + e.message ) );
 			process.exit();
@@ -97,7 +100,7 @@ async function replaceFiles( command ) {
 
 	if ( ! command.dryRun ) {
 		try {
-			fs.writeFile( WORKING_DIR + '/README.md', '# ' + pluginName + '\n' );
+			await fs.writeFile( WORKING_DIR + '/README.md', '# ' + pluginName + '\n' );
 		} catch ( e ) {
 			log( format.error( 'Could not update README.md file: ' + e.message ) );
 			process.exit();
