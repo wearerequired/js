@@ -28,7 +28,7 @@ async function create( command ) {
 					'personal access token for GitHub',
 					'https://github.com/settings/tokens'
 				) +
-				".\nAfter the first run the token gets stored in your system's keychain and will be pre-filled on next runs\n\n"
+				" with the 'repo' scope selected.\nAfter the first run the token gets stored in your system's keychain and will be pre-filled on next runs.\n"
 		);
 
 		const { isReady } = await inquirer.prompt( [
