@@ -1,12 +1,13 @@
 'use strict';
 
-const chalk = require( 'chalk' );
+const { red, yellow, green, bold } = require( 'colorette' );
 
 const log = console.log; // eslint-disable-line no-console
 const format = {
-	error: chalk.bold.red,
-	warning: chalk.keyword( 'orange' ),
-	success: chalk.bold.green,
+	title: ( message ) => bold( message ),
+	error: ( message ) => bold( red( message ) ),
+	warning: ( message ) => yellow( message ),
+	success: ( message ) => bold( green( message ) ),
 };
 
 module.exports = {
