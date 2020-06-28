@@ -29,6 +29,7 @@
     "keytar": "^6.0.1",
     "ora": "^4.0.4",
     "replace-in-file": "^6.1.0",
+    "rimraf": "^3.0.2",
     "simple-git": "^2.9.0",
     "terminal-link": "^2.1.1"
   },

@@ -1,5 +1,6 @@
 'use strict';
 
+const { promisify } = require( 'util' );
 const fs = require( 'fs' ).promises;
 const simpleGit = require( 'simple-git/promise' );
 const { Octokit } = require( '@octokit/rest' );
@@ -9,6 +10,8 @@ const ora = require( 'ora' );
 const replace = require( 'replace-in-file' );
 const { pascalCase, paramCase, snakeCase } = require( 'change-case' );
 const terminalLink = require( 'terminal-link' );
+const rimraf = promisify( require( 'rimraf' ) );
+const exec = promisify( require( 'child_process' ).exec );
 const { log, format } = require( '../logger' );
 const { validateSlug, validatePHPNamespace, validateNotEmpty } = require( '../validation' );
 
@@ -17,6 +20,30 @@ const TEMPLATE_REPO = 'wordpress-plugin-boilerplate';
 const WORKING_DIR = process.cwd();
 
 const sleep = ( time ) => new Promise( ( resolve ) => setTimeout( resolve, time ) );
+
+async function runStep( name, abortMessage, handler ) {
+	const spinner = ora( name ).start();
+
+	try {
+		await handler();
+	} catch ( exception ) {
+		spinner.fail();
+		log( exception, format.error( '\n\n' + abortMessage ) );
+		process.exit( 1 );
+	}
+
+	spinner.succeed();
+}
+
+async function runShellCommand( command, cwd = WORKING_DIR ) {
+	return await exec( command, {
+		cwd,
+		env: {
+			PATH: process.env.PATH,
+			HOME: process.env.HOME,
+		},
+	} );
+}
 
 async function create( command ) {
 	if ( ! command.skipIntro ) {
@@ -61,6 +88,7 @@ async function create( command ) {
 		pluginDescription,
 		pluginSlug,
 		phpNamespace,
+		deleteExampleBlock,
 		githubSlug,
 		privateRepo,
 	} = await inquirer.prompt( [
@@ -100,6 +128,12 @@ async function create( command ) {
 			validate: validatePHPNamespace,
 		},
 		{
+			type: 'confirm',
+			name: 'deleteExampleBlock',
+			default: false,
+			message: 'Delete the example block?',
+		},
+		{
 			type: 'input',
 			name: 'githubSlug',
 			default: ( answers ) => answers.pluginSlug,
@@ -135,8 +169,6 @@ async function create( command ) {
 	// Add token to the keychain.
 	await keytar.setPassword( 'wordpress-plugin-boilerplate', 'github', githubToken );
 
-	const creatingSpinner = ora( 'Creating repository using template' ).start();
-
 	const octokit = new Octokit( {
 		auth: githubToken,
 		previews: [ 'baptiste' ],
@@ -144,7 +176,7 @@ async function create( command ) {
 
 	// Create the repository.
 	let response;
-	try {
+	await runStep( 'Creating repository using template', 'Could not create repo.', async () => {
 		response = await octokit.repos.createUsingTemplate( {
 			template_owner: TEMPLATE_OWNER,
 			template_repo: TEMPLATE_REPO,
@@ -153,105 +185,88 @@ async function create( command ) {
 			private: privateRepo,
 			description: pluginDescription,
 		} );
-	} catch ( e ) {
-		creatingSpinner.fail();
-		log( format.error( 'Could not create repo: ' + e.message ) );
-		process.exit();
-	}
+	} );
 
-	creatingSpinner.succeed();
-
-	// Clone the repository.
 	const { data: repo } = response;
-
-	const cloningSpinner = ora( 'Cloning repository into a new directory' ).start();
 	const git = simpleGit();
 
-	// Give GitHub some time to create the repository
-	// to prevent cloning an empty repository.
-	await sleep( 1000 );
-
-	try {
+	// Clone the repository.
+	await runStep( 'Cloning repository into a new directory', 'Git checkout failed.', async () => {
+		// Give GitHub some time to create the repository
+		// to prevent cloning an empty repository.
+		await sleep( 1000 );
 		await git.clone( repo.ssh_url, pluginDir );
-	} catch ( e ) {
-		cloningSpinner.fail();
-		log( format.error( 'Checkout failed: ' + e.message ) );
-		process.exit();
-	}
-
-	cloningSpinner.succeed();
+	} );
 
 	// Rename files in local checkout.
-	const renamingSpinner = ora( 'Renaming plugin files' ).start();
-	try {
+	await runStep( 'Renaming plugin files', 'Could not rename files.', async () => {
 		await fs.rename( pluginDir + '/plugin-name.php', pluginDir + '/' + pluginSlug + '.php' );
-	} catch ( e ) {
-		renamingSpinner.fail();
-		log( format.error( 'Could not rename file: ' + e.message ) );
-		process.exit();
-	}
-
-	try {
 		await fs.writeFile( pluginDir + '/README.md', '# ' + pluginName + '\n' );
-	} catch ( e ) {
-		renamingSpinner.fail();
-		log( format.error( 'Could not update README.md file: ' + e.message ) );
-		process.exit();
-	}
 
-	const replacementOptions = {
-		files: [
-			pluginDir + '/composer.json',
-			pluginDir + '/package.json',
-			pluginDir + '/phpcs.xml.dist',
-			pluginDir + '/.eslintrc.js',
-			pluginDir + '/' + pluginSlug + '.php',
-			pluginDir + '/inc/**/*.php',
-			pluginDir + '/assets/js/src/**/*.js',
-		],
-		from: [
-			/Plugin Name([^:])/g, // Ignore the colon so that in "Plugin Name: Plugin Name" only the second is replaced.
-			/Required\\PluginName/g,
-			/Required\\\\PluginName\\\\/g,
-			/plugin-name/g,
-			/plugin_name/g,
-			/wordpress-plugin-boilerplate/g,
-		],
-		to: [
-			pluginName + '$1',
-			phpNamespace,
-			phpNamespace.replace( /\\/g, '\\\\' ),
-			pluginSlug,
-			snakeCase( pluginSlug ),
-			githubSlug,
-		],
-	};
+		if ( deleteExampleBlock ) {
+			await rimraf( pluginDir + '/assets/js/src/blocks/example' );
+		}
 
-	try {
+		const replacementOptions = {
+			files: [
+				pluginDir + '/composer.json',
+				pluginDir + '/package.json',
+				pluginDir + '/phpcs.xml.dist',
+				pluginDir + '/.eslintrc.js',
+				pluginDir + '/' + pluginSlug + '.php',
+				pluginDir + '/inc/**/*.php',
+				pluginDir + '/assets/js/src/**/*.js',
+			],
+			from: [
+				/Plugin Name([^:])/g, // Ignore the colon so that in "Plugin Name: Plugin Name" only the second is replaced.
+				/Required\\PluginName/g,
+				/Required\\\\PluginName\\\\/g,
+				/plugin-name/g,
+				/plugin_name/g,
+				/wordpress-plugin-boilerplate/g,
+			],
+			to: [
+				pluginName + '$1',
+				phpNamespace,
+				phpNamespace.replace( /\\/g, '\\\\' ),
+				pluginSlug,
+				snakeCase( pluginSlug ),
+				githubSlug,
+			],
+		};
+
 		await replace( replacementOptions );
-	} catch ( e ) {
-		renamingSpinner.fail();
-		log( format.error( 'Could not replace files: ' + e.message ) );
-		process.exit();
-	}
+	} );
 
 	// Commit and push local changes after rename.
-	await git.cwd( pluginDir );
-	await git.add( './*' );
-	await git.commit( 'Update plugin name' );
-
-	try {
+	await runStep( 'Committing updated files', 'Could not push updated files.', async () => {
+		await git.cwd( pluginDir );
+		await git.add( './*' );
+		await git.commit( 'Update plugin name' );
 		await git.push();
-	} catch ( e ) {
-		renamingSpinner.fail();
-		log( format.error( 'Could not push updated files: ' + e.message ) );
-		process.exit();
-	}
+	} );
 
-	renamingSpinner.succeed();
+	// Install dependencies.
+	await runStep( 'Installing dependencies', 'Could not install dependencies.', async () => {
+		await runShellCommand( 'npm install', pluginDir );
+	} );
+
+	// Build files.
+	await runStep( 'Building plugin', 'Could not build plugin.', async () => {
+		await runShellCommand( 'npm run build', pluginDir );
+	} );
+
+	// Commit and push local changes after build.
+	await runStep( 'Committing updated files', 'Could not push updated files.', async () => {
+		await git.cwd( pluginDir );
+		await git.add( './*' );
+		await git.commit( 'Build' );
+		await git.push();
+	} );
 
 	log( format.success( '\n✅  Done!' ) );
 	log( 'Directory: ' + pluginDir );
+	log( 'GitHub Repo: ' + repo.html_url );
 }
 
 module.exports = create;
