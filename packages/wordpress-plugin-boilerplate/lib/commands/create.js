@@ -167,7 +167,9 @@ async function create( command ) {
 	}
 
 	// Add token to the keychain.
-	await keytar.setPassword( 'wordpress-plugin-boilerplate', 'github', githubToken );
+	if ( storedGithubToken !== githubToken ) {
+		await keytar.setPassword( 'wordpress-plugin-boilerplate', 'github', githubToken );
+	}
 
 	const octokit = new Octokit( {
 		auth: githubToken,
