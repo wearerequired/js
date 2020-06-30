@@ -225,6 +225,7 @@ async function create( command ) {
 				/Required\\\\PluginName\\\\/g,
 				/plugin-name/g,
 				/plugin_name/g,
+				/Plugin description\./g,
 				/wordpress-plugin-boilerplate/g,
 			],
 			to: [
@@ -233,6 +234,7 @@ async function create( command ) {
 				phpNamespace.replace( /\\/g, '\\\\' ),
 				pluginSlug,
 				snakeCase( pluginSlug ),
+				pluginDescription,
 				githubSlug,
 			],
 		};
