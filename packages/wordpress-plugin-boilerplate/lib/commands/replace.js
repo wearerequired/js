@@ -125,7 +125,7 @@ async function replaceFiles( command ) {
 		from: [
 			/Plugin Name([^:])/g, // Ignore the colon so that in "Plugin Name: Plugin Name" only the second is replaced.
 			/Required\\PluginName/g,
-			/Required\\\\PluginName\\\\/g,
+			/Required\\\\PluginName/g,
 			/plugin-name/g,
 			/plugin_name/g,
 			/pluginName/g,
