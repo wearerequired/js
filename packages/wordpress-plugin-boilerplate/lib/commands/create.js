@@ -8,7 +8,7 @@ const inquirer = require( 'inquirer' );
 const keytar = require( 'keytar' );
 const ora = require( 'ora' );
 const replace = require( 'replace-in-file' );
-const { pascalCase, paramCase, snakeCase } = require( 'change-case' );
+const { pascalCase, camelCase, paramCase, snakeCase } = require( 'change-case' );
 const terminalLink = require( 'terminal-link' );
 const rimraf = promisify( require( 'rimraf' ) );
 const exec = promisify( require( 'child_process' ).exec );
@@ -215,6 +215,7 @@ async function create( command ) {
 				pluginDir + '/package.json',
 				pluginDir + '/phpcs.xml.dist',
 				pluginDir + '/.eslintrc.js',
+				pluginDir + '/webpack.config.js',
 				pluginDir + '/' + pluginSlug + '.php',
 				pluginDir + '/inc/**/*.php',
 				pluginDir + '/assets/js/src/**/*.js',
@@ -225,6 +226,7 @@ async function create( command ) {
 				/Required\\\\PluginName\\\\/g,
 				/plugin-name/g,
 				/plugin_name/g,
+				/pluginName/g,
 				/Plugin description\./g,
 				/wordpress-plugin-boilerplate/g,
 			],
@@ -234,6 +236,7 @@ async function create( command ) {
 				phpNamespace.replace( /\\/g, '\\\\' ),
 				pluginSlug,
 				snakeCase( pluginSlug ),
+				camelCase( pluginSlug ),
 				pluginDescription,
 				githubSlug,
 			],
