@@ -1,5 +1,5 @@
 const validateSlug = async ( input ) => {
-	if ( /[^a-z0-9_\-]/.test( input ) ) {
+	if ( ! input || /[^a-z0-9_\-]/.test( input ) ) {
 		return 'Only lowercase alphanumeric characters, dashes and underscores are allowed.';
 	}
 
@@ -7,7 +7,7 @@ const validateSlug = async ( input ) => {
 };
 
 const validatePHPNamespace = async ( input ) => {
-	if ( /[^A-Za-z0-9_\\]/.test( input ) ) {
+	if ( ! input || /[^A-Za-z0-9_\\]/.test( input ) ) {
 		return 'Only alphanumeric characters, backslashes and underscores are allowed.';
 	}
 
