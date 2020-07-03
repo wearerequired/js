@@ -3,8 +3,9 @@
 const fs = require( 'fs' ).promises;
 const inquirer = require( 'inquirer' );
 const replace = require( 'replace-in-file' );
-const { pascalCase, paramCase, snakeCase } = require( 'change-case' );
+const { pascalCase, camelCase, paramCase, snakeCase } = require( 'change-case' );
 const { log, format } = require( '../logger' );
+const { validateSlug, validatePHPNamespace, validateNotEmpty } = require( '../validation' );
 
 const WORKING_DIR = process.cwd();
 
@@ -20,28 +21,25 @@ async function replaceFiles( command ) {
 		process.exit();
 	}
 
-	const validateSlug = async ( input ) => {
-		if ( /[^a-z0-9_\-]/.test( input ) ) {
-			return 'Only lowercase alphanumeric characters, dashes and underscores are allowed.';
-		}
-
-		return true;
-	};
-
-	const validatePHPNamespace = async ( input ) => {
-		if ( /[^A-Za-z0-9_\\]/.test( input ) ) {
-			return 'Only alphanumeric characters, backslashes and underscores are allowed.';
-		}
-
-		return true;
-	};
-
-	const { pluginName, pluginSlug, phpNamespace, githubSlug } = await inquirer.prompt( [
+	const {
+		pluginName,
+		pluginDescription,
+		pluginSlug,
+		phpNamespace,
+		githubSlug,
+	} = await inquirer.prompt( [
 		{
 			type: 'input',
 			name: 'pluginName',
 			default: 'My Plugin',
 			message: 'Enter the name of the plugin:',
+			validate: validateNotEmpty,
+		},
+		{
+			type: 'input',
+			name: 'pluginDescription',
+			default: '',
+			message: 'Enter the description of the plugin:',
 		},
 		{
 			type: 'input',
@@ -119,6 +117,7 @@ async function replaceFiles( command ) {
 			WORKING_DIR + '/package.json',
 			WORKING_DIR + '/phpcs.xml.dist',
 			WORKING_DIR + '/.eslintrc.js',
+			WORKING_DIR + '/webpack.config.js',
 			WORKING_DIR + '/' + pluginSlug + '.php',
 			WORKING_DIR + '/inc/**/*.php',
 			WORKING_DIR + '/assets/js/src/**/*.js',
@@ -126,9 +125,11 @@ async function replaceFiles( command ) {
 		from: [
 			/Plugin Name([^:])/g, // Ignore the colon so that in "Plugin Name: Plugin Name" only the second is replaced.
 			/Required\\PluginName/g,
-			/Required\\\\PluginName/g,
+			/Required\\\\PluginName\\\\/g,
 			/plugin-name/g,
 			/plugin_name/g,
+			/pluginName/g,
+			/Plugin description\./g,
 			/wordpress-plugin-boilerplate/g,
 		],
 		to: [
@@ -137,6 +138,8 @@ async function replaceFiles( command ) {
 			phpNamespace.replace( /\\/g, '\\\\' ),
 			pluginSlug,
 			snakeCase( pluginSlug ),
+			camelCase( pluginSlug ),
+			pluginDescription,
 			githubSlug,
 		],
 		dry: command.dryRun,
