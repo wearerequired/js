@@ -200,14 +200,28 @@ async function create( command ) {
 		await git.clone( repo.ssh_url, pluginDir );
 	} );
 
+	// Optional: Remove the example block.
+	if ( deleteExampleBlock ) {
+		await runStep( 'Removing example block', 'Could not remove example block.', async () => {
+			await rimraf( pluginDir + '/assets/js/src/blocks/example' );
+
+			try {
+				await replace( {
+					files: pluginDir + '/inc/Blocks/namespace.php',
+					from: /\tregister_block_type\(.*\);\n/s,
+					to: '',
+				} );
+			} catch ( e ) {
+				log( format.error( 'Could not remove example block registratio:. ' + e.message ) );
+				process.exit();
+			}
+		} );
+	}
+
 	// Rename files in local checkout.
 	await runStep( 'Renaming plugin files', 'Could not rename files.', async () => {
 		await fs.rename( pluginDir + '/plugin-name.php', pluginDir + '/' + pluginSlug + '.php' );
 		await fs.writeFile( pluginDir + '/README.md', '# ' + pluginName + '\n' );
-
-		if ( deleteExampleBlock ) {
-			await rimraf( pluginDir + '/assets/js/src/blocks/example' );
-		}
 
 		const replacementOptions = {
 			files: [

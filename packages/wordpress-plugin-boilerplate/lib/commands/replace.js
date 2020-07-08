@@ -1,9 +1,11 @@
 'use strict';
 
+const { promisify } = require( 'util' );
 const fs = require( 'fs' ).promises;
 const inquirer = require( 'inquirer' );
 const replace = require( 'replace-in-file' );
 const { pascalCase, camelCase, paramCase, snakeCase } = require( 'change-case' );
+const rimraf = promisify( require( 'rimraf' ) );
 const { log, format } = require( '../logger' );
 const { validateSlug, validatePHPNamespace, validateNotEmpty } = require( '../validation' );
 
@@ -26,6 +28,7 @@ async function replaceFiles( command ) {
 		pluginDescription,
 		pluginSlug,
 		phpNamespace,
+		deleteExampleBlock,
 		githubSlug,
 	} = await inquirer.prompt( [
 		{
@@ -54,6 +57,12 @@ async function replaceFiles( command ) {
 			default: ( answers ) => 'Required\\' + pascalCase( answers.pluginSlug ),
 			message: 'Enter the PHP namespace of the plugin:',
 			validate: validatePHPNamespace,
+		},
+		{
+			type: 'confirm',
+			name: 'deleteExampleBlock',
+			default: false,
+			message: 'Delete the example block?',
 		},
 		{
 			type: 'input',
@@ -109,6 +118,22 @@ async function replaceFiles( command ) {
 		}
 	}
 	log( 'ℹ️  Updated README.md' );
+
+	if ( deleteExampleBlock ) {
+		await rimraf( WORKING_DIR + '/assets/js/src/blocks/example' );
+
+		try {
+			await replace( {
+				files: WORKING_DIR + '/inc/Blocks/namespace.php',
+				from: /\tregister_block_type\(.*\);\n/s,
+				to: '',
+				dry: command.dryRun,
+			} );
+		} catch ( e ) {
+			log( format.error( 'Could not remove example block registratio:. ' + e.message ) );
+			process.exit();
+		}
+	}
 
 	const replacementOptions = {
 		allowEmptyPaths: true,
