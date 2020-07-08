@@ -8,7 +8,6 @@ program.version( require( '../package.json' ).version );
 
 program
 	.command( 'replace' )
-	.option( '-n, --dry-run', 'run without actually making replacements' )
 	.description( 'rename plugin name and other variables' )
 	.action( replace );
 

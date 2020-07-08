@@ -6,44 +6,17 @@ const simpleGit = require( 'simple-git/promise' );
 const { Octokit } = require( '@octokit/rest' );
 const inquirer = require( 'inquirer' );
 const keytar = require( 'keytar' );
-const ora = require( 'ora' );
 const replace = require( 'replace-in-file' );
 const { pascalCase, camelCase, paramCase, snakeCase } = require( 'change-case' );
 const terminalLink = require( 'terminal-link' );
 const rimraf = promisify( require( 'rimraf' ) );
-const exec = promisify( require( 'child_process' ).exec );
 const { log, format } = require( '../logger' );
 const { validateSlug, validatePHPNamespace, validateNotEmpty } = require( '../validation' );
+const { sleep, runShellCommand, runStep } = require( '../utils' );
 
 const TEMPLATE_OWNER = 'wearerequired';
 const TEMPLATE_REPO = 'wordpress-plugin-boilerplate';
 const WORKING_DIR = process.cwd();
-
-const sleep = ( time ) => new Promise( ( resolve ) => setTimeout( resolve, time ) );
-
-async function runStep( name, abortMessage, handler ) {
-	const spinner = ora( name ).start();
-
-	try {
-		await handler();
-	} catch ( exception ) {
-		spinner.fail();
-		log( exception, format.error( '\n\n' + abortMessage ) );
-		process.exit( 1 );
-	}
-
-	spinner.succeed();
-}
-
-async function runShellCommand( command, cwd = WORKING_DIR ) {
-	return await exec( command, {
-		cwd,
-		env: {
-			PATH: process.env.PATH,
-			HOME: process.env.HOME,
-		},
-	} );
-}
 
 async function create( command ) {
 	if ( ! command.skipIntro ) {
@@ -205,16 +178,11 @@ async function create( command ) {
 		await runStep( 'Removing example block', 'Could not remove example block.', async () => {
 			await rimraf( pluginDir + '/assets/js/src/blocks/example' );
 
-			try {
-				await replace( {
-					files: pluginDir + '/inc/Blocks/namespace.php',
-					from: /\tregister_block_type\(.*\);\n/s,
-					to: '',
-				} );
-			} catch ( e ) {
-				log( format.error( 'Could not remove example block registratio:. ' + e.message ) );
-				process.exit();
-			}
+			await replace( {
+				files: pluginDir + '/inc/Blocks/namespace.php',
+				from: /\tregister_block_type\(.*\);\n/s,
+				to: '',
+			} );
 		} );
 	}
 
