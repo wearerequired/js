@@ -21,16 +21,16 @@
   },
   "homepage": "https://github.com/wearerequired/js/tree/master/packages/wordpress-plugin-boilerplate#readme",
   "dependencies": {
-    "@octokit/rest": "^18.0.0",
+    "@octokit/rest": "^18.0.3",
     "change-case": "^4.1.1",
-    "colorette": "^1.2.0",
+    "colorette": "^1.2.1",
     "commander": "^6.0.0",
-    "inquirer": "^7.2.0",
+    "inquirer": "^7.3.3",
     "keytar": "^6.0.1",
-    "ora": "^4.0.4",
+    "ora": "^4.0.5",
     "replace-in-file": "^6.1.0",
     "rimraf": "^3.0.2",
-    "simple-git": "^2.9.0",
+    "simple-git": "^2.15.0",
     "terminal-link": "^2.1.1"
   },
   "engines": {
