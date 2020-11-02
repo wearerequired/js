@@ -113,44 +113,49 @@ async function updateFile() {
 		process.exit();
 	}
 
-	selectedPullRequests.forEach( async ( pullRequestData ) => {
-		const [ repoName, number ] = pullRequestData.split( '|' );
+	await Promise.all(
+		selectedPullRequests.map( async ( pullRequestData ) => {
+			const [ repoName, number ] = pullRequestData.split( '|' );
 
-		const checkoutDir = await mkdtemp( join( tmpdir(), 'merge-pr-' ) );
-		try {
-			await run( `gh repo clone ${ repoName } . -- --single-branch --branch master`, {
-				cwd: checkoutDir,
-			} );
-			await run( `gh pr checkout ${ number }`, { cwd: checkoutDir } );
-			await run( `composer install --no-progress --prefer-dist --no-ansi --no-interaction`, {
-				cwd: checkoutDir,
-			} );
-			const gitStatus = await run( `git status --porcelain`, {
-				cwd: checkoutDir,
-			} );
-			const changedFiles = gitStatus.trim().split( '\n' ).filter( Boolean );
-			if ( changedFiles.length > 0 ) {
-				await run( `git commit -am "Add modified files"`, {
+			const checkoutDir = await mkdtemp( join( tmpdir(), 'merge-pr-' ) );
+			try {
+				await run( `gh repo clone ${ repoName } . -- --single-branch --branch master`, {
 					cwd: checkoutDir,
 				} );
-				await run( `git push`, {
+				await run( `gh pr checkout ${ number }`, { cwd: checkoutDir } );
+				await run(
+					`composer install --no-progress --prefer-dist --no-ansi --no-interaction`,
+					{
+						cwd: checkoutDir,
+					}
+				);
+				const gitStatus = await run( `git status --porcelain`, {
 					cwd: checkoutDir,
 				} );
-				await sleep( 5000 );
-				await run( `gh pr merge ${ number } --squash --delete-branch`, {
-					cwd: checkoutDir,
-				} );
-			} else {
-				await run( `gh pr merge ${ number } --squash --delete-branch`, {
-					cwd: checkoutDir,
-				} );
+				const changedFiles = gitStatus.trim().split( '\n' ).filter( Boolean );
+				if ( changedFiles.length > 0 ) {
+					await run( `git commit -am "Add modified files"`, {
+						cwd: checkoutDir,
+					} );
+					await run( `git push`, {
+						cwd: checkoutDir,
+					} );
+					await sleep( 5000 );
+					await run( `gh pr merge ${ number } --squash --delete-branch`, {
+						cwd: checkoutDir,
+					} );
+				} else {
+					await run( `gh pr merge ${ number } --squash --delete-branch`, {
+						cwd: checkoutDir,
+					} );
+				}
+			} catch ( err ) {
+				console.error( err ); // eslint-disable-line no-console
+			} finally {
+				await rimraf( checkoutDir );
 			}
-		} catch ( err ) {
-			console.error( err ); // eslint-disable-line no-console
-		} finally {
-			await rimraf( checkoutDir );
-		}
-	} );
+		} )
+	);
 }
 
 module.exports = updateFile;
