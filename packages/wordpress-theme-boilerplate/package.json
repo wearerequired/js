@@ -1,0 +1,43 @@
+{
+  "name": "@wearerequired/wordpress-theme-boilerplate",
+  "version": "0.1.0",
+  "description": "Create a WordPress theme.",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wearerequired/js.git"
+  },
+  "keywords": [
+    "cli",
+    "wordpress"
+  ],
+  "author": {
+    "name": "required gmbh",
+    "email": "info@required.com",
+    "url": "https://required.com"
+  },
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/wearerequired/js/issues"
+  },
+  "homepage": "https://github.com/wearerequired/js/tree/master/packages/wordpress-theme-boilerplate#readme",
+  "dependencies": {
+    "@octokit/rest": "^18.0.3",
+    "change-case": "^4.1.1",
+    "colorette": "^1.2.1",
+    "commander": "^6.0.0",
+    "inquirer": "^7.3.3",
+    "keytar": "^7.0.0",
+    "ora": "^5.0.0",
+    "replace-in-file": "^6.1.0",
+    "rimraf": "^3.0.2",
+    "simple-git": "^2.15.0",
+    "terminal-link": "^2.1.1"
+  },
+  "engines": {
+    "node": ">=10.0"
+  },
+  "bin": "./bin/wordpress-theme-boilerplate.js",
+  "publishConfig": {
+    "access": "public"
+  }
+}
