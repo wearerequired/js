@@ -169,7 +169,7 @@ async function create( command ) {
 	await runStep( 'Cloning repository into a new directory', 'Git checkout failed.', async () => {
 		// Give GitHub some time to create the repository
 		// to prevent cloning an empty repository.
-		await sleep( 1000 );
+		await sleep( 3000 );
 		await git.clone( repo.ssh_url, pluginDir );
 	} );
 
