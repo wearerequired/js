@@ -57,7 +57,10 @@ async function create( command ) {
 
 	const {
 		githubToken,
-		ThemeName,
+		projectName,
+		projectSlug,
+		projectURL,
+		themeName,
 		themeDescription,
 		themeSlug,
 		phpNamespace,
@@ -74,28 +77,28 @@ async function create( command ) {
 		},
 		{
 			type: 'input',
-			name: 'ProjectName',
+			name: 'projectName',
 			default: 'Project Name',
 			message: 'Enter the name of the project:',
 			validate: validateNotEmpty,
 		},
 		{
 			type: 'input',
-			name: 'ProjectSlug',
-			default: ( answers ) => paramCase( answers.ProjectName ),
+			name: 'projectSlug',
+			default: ( answers ) => paramCase( answers.projectName ),
 			message: 'Enter the slug of the project:',
 			validate: validateNotEmpty,
 		},
 		{
 			type: 'input',
-			name: 'ProjectURL',
+			name: 'projectURL',
 			default: 'Project URL',
 			message: 'Enter the url of the project:',
 			validate: validateNotEmpty,
 		},
 		{
 			type: 'input',
-			name: 'ThemeName',
+			name: 'themeName',
 			default: 'My Theme',
 			message: 'Enter the name of the theme:',
 			validate: validateNotEmpty,
@@ -109,14 +112,14 @@ async function create( command ) {
 		{
 			type: 'input',
 			name: 'themeSlug',
-			default: ( answers ) => paramCase( answers.ThemeName ),
+			default: ( answers ) => paramCase( answers.themeName ),
 			message: 'Enter the slug of the theme:',
 			validate: validateSlug,
 		},
 		{
 			type: 'input',
 			name: 'phpNamespace',
-			default: ( answers ) => 'Required\\' + pascalCase( answers.ProjectName ),
+			default: ( answers ) => 'Required\\' + pascalCase( answers.projectSlug ),
 			message: 'Enter the PHP namespace of the theme:',
 			validate: validatePHPNamespace,
 		},
@@ -177,6 +180,18 @@ async function create( command ) {
 	} );
 
 	const { data: repo } = response;
+
+	// Update repo to disbale issues, projects and wiki.
+	await runStep( 'Disabling issues, projects & wikis in repository', 'Could not update repo.', async () => {
+		await octokit.repos.update( {
+			owner: repo.owner.login,
+			repo: repo.name,
+			has_issues: false,
+			has_projects: false,
+			has_wiki: false,
+		});
+	} );
+
 	const git = simpleGit();
 
 	// Clone the repository.
@@ -207,6 +222,7 @@ async function create( command ) {
 				/Required\\ThemeName/g,
 				/Required\\\\ThemeName/g,
 				/project-slug/g,
+				/example\.org/g,
 				/theme-name/g,
 				/theme_name/g,
 				/ThemeName/g,
@@ -214,10 +230,11 @@ async function create( command ) {
 				/wordpress-theme-boilerplate/g,
 			],
 			to: [
-				ThemeName + '$1',
+				themeName + '$1',
 				phpNamespace,
 				phpNamespace.replace( /\\/g, '\\\\' ),
 				projectSlug,
+				projectURL,
 				themeSlug,
 				snakeCase( themeSlug ),
 				camelCase( themeSlug ),
