@@ -53,7 +53,7 @@ async function create( command ) {
 	}
 
 	// Get token from the keychain.
-	const storedGithubToken = await keytar.getPassword( 'wordpress-theme-boilerplate', 'github' );
+	const storedGithubToken = await keytar.getPassword( 'wordpress-plugin-boilerplate', 'github' );
 
 	const {
 		githubToken,
@@ -70,6 +70,27 @@ async function create( command ) {
 			name: 'githubToken',
 			default: storedGithubToken,
 			message: 'GitHub API token:',
+			validate: validateNotEmpty,
+		},
+		{
+			type: 'input',
+			name: 'ProjectName',
+			default: 'Project Name',
+			message: 'Enter the name of the project:',
+			validate: validateNotEmpty,
+		},
+		{
+			type: 'input',
+			name: 'ProjectSlug',
+			default: ( answers ) => paramCase( answers.ProjectName ),
+			message: 'Enter the slug of the project:',
+			validate: validateNotEmpty,
+		},
+		{
+			type: 'input',
+			name: 'ProjectURL',
+			default: 'Project URL',
+			message: 'Enter the url of the project:',
 			validate: validateNotEmpty,
 		},
 		{
@@ -95,7 +116,7 @@ async function create( command ) {
 		{
 			type: 'input',
 			name: 'phpNamespace',
-			default: ( answers ) => 'Required\\' + pascalCase( answers.themeSlug ),
+			default: ( answers ) => 'Required\\' + pascalCase( answers.ProjectName ),
 			message: 'Enter the PHP namespace of the theme:',
 			validate: validatePHPNamespace,
 		},
@@ -162,7 +183,7 @@ async function create( command ) {
 	await runStep( 'Cloning repository into a new directory', 'Git checkout failed.', async () => {
 		// Give GitHub some time to create the repository
 		// to prevent cloning an empty repository.
-		await sleep( 1000 );
+		await sleep( 3000 );
 		await git.clone( repo.ssh_url, themeDir );
 	} );
 
@@ -185,6 +206,7 @@ async function create( command ) {
 				/Theme Name([^:])/g, // Ignore the colon so that in "Theme Name: Theme Name" only the second is replaced.
 				/Required\\ThemeName/g,
 				/Required\\\\ThemeName/g,
+				/project-slug/g,
 				/theme-name/g,
 				/theme_name/g,
 				/ThemeName/g,
@@ -195,6 +217,7 @@ async function create( command ) {
 				ThemeName + '$1',
 				phpNamespace,
 				phpNamespace.replace( /\\/g, '\\\\' ),
+				projectSlug,
 				themeSlug,
 				snakeCase( themeSlug ),
 				camelCase( themeSlug ),
