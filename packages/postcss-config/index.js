@@ -8,7 +8,8 @@ module.exports = ( ctx ) => {
 				stage: 0,
 				preserve: false, // Omit pre-polyfilled CSS.
 				features: {
-					'nesting-rules': false /* Uses postcss-nesting which doesn't behave like Sass. */,
+					'nesting-rules': false, // Uses postcss-nesting which doesn't behave like Sass.
+					'prefers-color-scheme-query': false, // Requires a browser script.
 				},
 				autoprefixer: {
 					grid: true,

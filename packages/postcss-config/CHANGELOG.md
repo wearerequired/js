@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Bug fixes
+
+* Disable `prefers-color-scheme-query` to not transform `prefers-color-scheme` media queries as it requires an additional browser script.
+
 ## [0.1.1] - 2020-06-11
 
 ### Bug Fixes
