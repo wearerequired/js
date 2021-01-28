@@ -25,7 +25,7 @@ module.exports = ( ctx ) => {
 	if ( 'production' === ctx.env ) {
 		config.map = false;
 		config.plugins.cssnano = {
-			safe: true,
+			preset: [ 'default', { discardComments: { removeAll: true } } ],
 		};
 	} else {
 		config.map = true;

@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Bug fixes
 
 * Disable `prefers-color-scheme-query` to not transform `prefers-color-scheme` media queries as it requires an additional browser script.
+* Replace deprecated 'safe' option for `cssnano` with the default preset.
 
 ## [0.1.1] - 2020-06-11
 
