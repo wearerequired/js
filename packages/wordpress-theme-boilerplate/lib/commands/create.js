@@ -57,9 +57,6 @@ async function create( command ) {
 
 	const {
 		githubToken,
-		projectName,
-		projectSlug,
-		projectURL,
 		themeName,
 		themeDescription,
 		themeSlug,
@@ -73,27 +70,6 @@ async function create( command ) {
 			name: 'githubToken',
 			default: storedGithubToken,
 			message: 'GitHub API token:',
-			validate: validateNotEmpty,
-		},
-		{
-			type: 'input',
-			name: 'projectName',
-			default: 'Project Name',
-			message: 'Enter the name of the project:',
-			validate: validateNotEmpty,
-		},
-		{
-			type: 'input',
-			name: 'projectSlug',
-			default: ( answers ) => paramCase( answers.projectName ),
-			message: 'Enter the slug of the project:',
-			validate: validateNotEmpty,
-		},
-		{
-			type: 'input',
-			name: 'projectURL',
-			default: 'Project URL',
-			message: 'Enter the url of the project:',
 			validate: validateNotEmpty,
 		},
 		{
@@ -119,7 +95,7 @@ async function create( command ) {
 		{
 			type: 'input',
 			name: 'phpNamespace',
-			default: ( answers ) => 'Required\\' + pascalCase( answers.projectSlug ),
+			default: ( answers ) => 'Required\\' + pascalCase( answers.themeSlug.replace('-theme','') ) + '\\Theme',
 			message: 'Enter the PHP namespace of the theme:',
 			validate: validatePHPNamespace,
 		},
@@ -204,8 +180,6 @@ async function create( command ) {
 
 	// Rename files in local checkout.
 	await runStep( 'Renaming theme files', 'Could not rename files.', async () => {
-		// await fs.writeFile( themeDir + '/README.md', '# ' + ThemeName + '\n' ); // @TODO
-
 		const replacementOptions = {
 			files: [
 				themeDir + '/README.md',
@@ -221,8 +195,6 @@ async function create( command ) {
 				/Theme Name([^:])/g, // Ignore the colon so that in "Theme Name: Theme Name" only the second is replaced.
 				/Required\\ThemeName/g,
 				/Required\\\\ThemeName/g,
-				/project-slug/g,
-				/example\.org/g,
 				/theme-name/g,
 				/theme_name/g,
 				/ThemeName/g,
@@ -233,8 +205,6 @@ async function create( command ) {
 				themeName + '$1',
 				phpNamespace,
 				phpNamespace.replace( /\\/g, '\\\\' ),
-				projectSlug,
-				projectURL,
 				themeSlug,
 				snakeCase( themeSlug ),
 				camelCase( themeSlug ),
