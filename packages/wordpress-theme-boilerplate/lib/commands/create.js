@@ -15,7 +15,7 @@ const { validateSlug, validatePHPNamespace, validateNotEmpty } = require( '../va
 const { sleep, runShellCommand, runStep } = require( '../utils' );
 
 const TEMPLATE_OWNER = 'wearerequired';
-const TEMPLATE_REPO = 'wordpress-theme-boilerplate'; // @TODO
+const TEMPLATE_REPO = 'wordpress-theme-boilerplate';
 const WORKING_DIR = process.cwd();
 
 async function create( command ) {
