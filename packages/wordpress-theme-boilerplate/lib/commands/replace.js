@@ -87,10 +87,6 @@ async function replaceFiles() {
 		await fs.rename( WORKING_DIR + '/style.css', WORKING_DIR + '/' + themeSlug + '.php' );
 	} );
 
-	await runStep( 'Updating README.md file', 'Could not update README.md.', async () => {
-		await fs.writeFile( WORKING_DIR + '/README.md', '# ' + ThemeName + '\n' );
-	} );
-
 	await runStep( 'Renaming theme files', 'Could not rename files.', async () => {
 		const replacementOptions = {
 			allowEmptyPaths: true,
