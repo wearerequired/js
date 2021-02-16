@@ -158,21 +158,6 @@ async function create( command ) {
 
 	const { data: repo } = response;
 
-	// Update repo to disbale issues, projects and wiki.
-	await runStep(
-		'Disabling issues, projects & wikis in repository',
-		'Could not update repo.',
-		async () => {
-			await octokit.repos.update( {
-				owner: repo.owner.login,
-				repo: repo.name,
-				has_issues: false,
-				has_projects: false,
-				has_wiki: false,
-			} );
-		}
-	);
-
 	const git = simpleGit();
 
 	// Clone the repository.
