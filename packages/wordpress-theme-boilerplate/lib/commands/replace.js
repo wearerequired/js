@@ -48,7 +48,8 @@ async function replaceFiles() {
 		{
 			type: 'input',
 			name: 'phpNamespace',
-			default: ( answers ) => 'Required\\' + pascalCase( answers.themeSlug ),
+			default: ( answers ) =>
+				'Required\\' + pascalCase( answers.themeSlug.replace( '-theme', '' ) ) + '\\Theme',
 			message: 'Enter the PHP namespace of the theme:',
 			validate: validatePHPNamespace,
 		},
