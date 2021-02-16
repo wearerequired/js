@@ -53,7 +53,7 @@ async function create( command ) {
 	}
 
 	// Get token from the keychain.
-	const storedGithubToken = await keytar.getPassword( 'wordpress-plugin-boilerplate', 'github' );
+	const storedGithubToken = await keytar.getPassword( 'wordpress-theme-boilerplate', 'github' );
 
 	const {
 		githubToken,
