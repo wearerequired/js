@@ -95,7 +95,8 @@ async function create( command ) {
 		{
 			type: 'input',
 			name: 'phpNamespace',
-			default: ( answers ) => 'Required\\' + pascalCase( answers.themeSlug.replace('-theme','') ) + '\\Theme',
+			default: ( answers ) =>
+				'Required\\' + pascalCase( answers.themeSlug.replace( '-theme', '' ) ) + '\\Theme',
 			message: 'Enter the PHP namespace of the theme:',
 			validate: validatePHPNamespace,
 		},
@@ -158,15 +159,19 @@ async function create( command ) {
 	const { data: repo } = response;
 
 	// Update repo to disbale issues, projects and wiki.
-	await runStep( 'Disabling issues, projects & wikis in repository', 'Could not update repo.', async () => {
-		await octokit.repos.update( {
-			owner: repo.owner.login,
-			repo: repo.name,
-			has_issues: false,
-			has_projects: false,
-			has_wiki: false,
-		});
-	} );
+	await runStep(
+		'Disabling issues, projects & wikis in repository',
+		'Could not update repo.',
+		async () => {
+			await octokit.repos.update( {
+				owner: repo.owner.login,
+				repo: repo.name,
+				has_issues: false,
+				has_projects: false,
+				has_wiki: false,
+			} );
+		}
+	);
 
 	const git = simpleGit();
 
