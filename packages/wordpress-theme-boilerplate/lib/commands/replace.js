@@ -19,7 +19,7 @@ async function replaceFiles() {
 	}
 
 	const {
-		ThemeName,
+		themeName,
 		themeDescription,
 		themeSlug,
 		phpNamespace,
@@ -27,7 +27,7 @@ async function replaceFiles() {
 	} = await inquirer.prompt( [
 		{
 			type: 'input',
-			name: 'ThemeName',
+			name: 'themeName',
 			default: 'My Theme',
 			message: 'Enter the name of the theme:',
 			validate: validateNotEmpty,
@@ -41,7 +41,7 @@ async function replaceFiles() {
 		{
 			type: 'input',
 			name: 'themeSlug',
-			default: ( answers ) => paramCase( answers.ThemeName ),
+			default: ( answers ) => paramCase( answers.themeName ),
 			message: 'Enter the slug of the theme:',
 			validate: validateSlug,
 		},
@@ -72,7 +72,7 @@ async function replaceFiles() {
 				{ key: 'y', name: 'Yes', value: true },
 				{ key: 'n', name: 'No', value: false },
 			],
-			message: 'Start rewriting the files for ' + ThemeName + ' with slug ' + themeSlug + '?',
+			message: 'Start rewriting the files for ' + themeName + ' with slug ' + themeSlug + '?',
 		},
 	] );
 
@@ -107,7 +107,7 @@ async function replaceFiles() {
 				/wordpress-theme-boilerplate/g,
 			],
 			to: [
-				ThemeName + '$1',
+				themeName + '$1',
 				phpNamespace,
 				phpNamespace.replace( /\\/g, '\\\\' ),
 				themeSlug,
