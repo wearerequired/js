@@ -95,14 +95,14 @@ async function replaceFiles() {
 		const replacementOptions = {
 			allowEmptyPaths: true,
 			files: [
-				themeDir + '/README.md',
-				themeDir + '/composer.json',
-				themeDir + '/package.json',
-				themeDir + '/phpcs.xml.dist',
-				themeDir + '/style.css',
-				themeDir + '/*.php',
-				themeDir + '/inc/*.php',
-				themeDir + '/template-parts/*.php',
+				WORKING_DIR + '/README.md',
+				WORKING_DIR + '/composer.json',
+				WORKING_DIR + '/package.json',
+				WORKING_DIR + '/phpcs.xml.dist',
+				WORKING_DIR + '/style.css',
+				WORKING_DIR + '/*.php',
+				WORKING_DIR + '/inc/*.php',
+				WORKING_DIR + '/template-parts/*.php',
 			],
 			from: [
 				/Theme Name([^:])/g, // Ignore the colon so that in "Theme Name: Theme Name" only the second is replaced.
