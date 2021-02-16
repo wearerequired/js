@@ -1,6 +1,5 @@
 'use strict';
 
-const { promisify } = require( 'util' );
 const fs = require( 'fs' ).promises;
 const simpleGit = require( 'simple-git/promise' );
 const { Octokit } = require( '@octokit/rest' );
@@ -9,7 +8,6 @@ const keytar = require( 'keytar' );
 const replace = require( 'replace-in-file' );
 const { pascalCase, camelCase, paramCase, snakeCase } = require( 'change-case' );
 const terminalLink = require( 'terminal-link' );
-const rimraf = promisify( require( 'rimraf' ) );
 const { log, format } = require( '../logger' );
 const { validateSlug, validatePHPNamespace, validateNotEmpty } = require( '../validation' );
 const { sleep, runShellCommand, runStep } = require( '../utils' );

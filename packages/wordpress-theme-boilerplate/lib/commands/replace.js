@@ -1,11 +1,9 @@
 'use strict';
 
-const { promisify } = require( 'util' );
 const fs = require( 'fs' ).promises;
 const inquirer = require( 'inquirer' );
 const replace = require( 'replace-in-file' );
 const { pascalCase, camelCase, paramCase, snakeCase } = require( 'change-case' );
-const rimraf = promisify( require( 'rimraf' ) );
 const { log, format } = require( '../logger' );
 const { validateSlug, validatePHPNamespace, validateNotEmpty } = require( '../validation' );
 const { runStep } = require( '../utils' );
@@ -74,8 +72,7 @@ async function replaceFiles() {
 				{ key: 'y', name: 'Yes', value: true },
 				{ key: 'n', name: 'No', value: false },
 			],
-			message:
-				'Start rewriting the files for ' + ThemeName + ' with slug ' + themeSlug + '?',
+			message: 'Start rewriting the files for ' + ThemeName + ' with slug ' + themeSlug + '?',
 		},
 	] );
 
@@ -87,10 +84,7 @@ async function replaceFiles() {
 	log();
 
 	await runStep( 'Renaming main theme file', 'Could not rename file.', async () => {
-		await fs.rename(
-			WORKING_DIR + '/style.css',
-			WORKING_DIR + '/' + themeSlug + '.php'
-		);
+		await fs.rename( WORKING_DIR + '/style.css', WORKING_DIR + '/' + themeSlug + '.php' );
 	} );
 
 	await runStep( 'Updating README.md file', 'Could not update README.md.', async () => {
