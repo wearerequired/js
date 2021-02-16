@@ -83,10 +83,6 @@ async function replaceFiles() {
 
 	log();
 
-	await runStep( 'Renaming main theme file', 'Could not rename file.', async () => {
-		await fs.rename( WORKING_DIR + '/style.css', WORKING_DIR + '/' + themeSlug + '.php' );
-	} );
-
 	await runStep( 'Renaming theme files', 'Could not rename files.', async () => {
 		const replacementOptions = {
 			allowEmptyPaths: true,
