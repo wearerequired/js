@@ -93,9 +93,7 @@ async function replaceFiles() {
 				WORKING_DIR + '/package.json',
 				WORKING_DIR + '/phpcs.xml.dist',
 				WORKING_DIR + '/style.css',
-				WORKING_DIR + '/*.php',
-				WORKING_DIR + '/inc/*.php',
-				WORKING_DIR + '/template-parts/*.php',
+				WORKING_DIR + '/**/*.php',
 			],
 			from: [
 				/Theme Name([^:])/g, // Ignore the colon so that in "Theme Name: Theme Name" only the second is replaced.

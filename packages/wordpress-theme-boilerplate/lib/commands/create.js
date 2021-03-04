@@ -175,9 +175,7 @@ async function create( command ) {
 				themeDir + '/package.json',
 				themeDir + '/phpcs.xml.dist',
 				themeDir + '/style.css',
-				themeDir + '/*.php',
-				themeDir + '/inc/*.php',
-				themeDir + '/template-parts/*.php',
+				themeDir + '/**/*.php',
 			],
 			from: [
 				/Theme Name([^:])/g, // Ignore the colon so that in "Theme Name: Theme Name" only the second is replaced.
