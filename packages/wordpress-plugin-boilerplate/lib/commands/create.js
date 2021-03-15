@@ -239,6 +239,15 @@ async function create( command ) {
 		await runShellCommand( 'npm install', pluginDir );
 	} );
 
+	// Lint and fix files.
+	await runStep(
+		'Linting and fixing JavaScript files',
+		'Could not lint/fix JavaScript files.',
+		async () => {
+			await runShellCommand( 'npm run lint-js:fix', pluginDir );
+		}
+	);
+
 	// Build files.
 	await runStep( 'Building plugin', 'Could not build plugin.', async () => {
 		await runShellCommand( 'npm run build', pluginDir );
