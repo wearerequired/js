@@ -123,7 +123,6 @@ async function replaceFiles() {
 				WORKING_DIR + '/composer.json',
 				WORKING_DIR + '/package.json',
 				WORKING_DIR + '/phpcs.xml.dist',
-				WORKING_DIR + '/.eslintrc.js',
 				WORKING_DIR + '/webpack.config.js',
 				WORKING_DIR + '/' + pluginSlug + '.php',
 				WORKING_DIR + '/inc/**/*.php',

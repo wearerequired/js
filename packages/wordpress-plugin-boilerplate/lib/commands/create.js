@@ -196,7 +196,6 @@ async function create( command ) {
 				pluginDir + '/composer.json',
 				pluginDir + '/package.json',
 				pluginDir + '/phpcs.xml.dist',
-				pluginDir + '/.eslintrc.js',
 				pluginDir + '/webpack.config.js',
 				pluginDir + '/' + pluginSlug + '.php',
 				pluginDir + '/inc/**/*.php',
