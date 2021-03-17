@@ -16,6 +16,7 @@
     "url": "https://required.com"
   },
   "license": "MIT",
+  "private": true,
   "bugs": {
     "url": "https://github.com/wearerequired/js/issues"
   },
@@ -35,8 +36,5 @@
   "engines": {
     "node": ">=10.0"
   },
-  "bin": "./bin/wordpress-theme-boilerplate.js",
-  "publishConfig": {
-    "access": "public"
-  }
+  "bin": "./bin/wordpress-theme-boilerplate.js"
 }
