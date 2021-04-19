@@ -31,7 +31,7 @@
     "replace-in-file": "^6.1.0",
     "rimraf": "^3.0.2",
     "simple-git": "^2.15.0",
-    "terminal-link": "^2.1.1"
+    "terminal-link": "^3.0.0"
   },
   "engines": {
     "node": ">=10.0"
