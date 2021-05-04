@@ -9,7 +9,7 @@
   "devDependencies": {
     "@wearerequired/browserslist-config": "file:packages/browserslist-config",
     "@wearerequired/eslint-config": "^2.1.0",
-    "@wordpress/eslint-plugin": "^8.0.2",
+    "@wordpress/eslint-plugin": "^9.0.4",
     "eslint": "^7.13.0",
     "lerna": "^3.22.1"
   },
