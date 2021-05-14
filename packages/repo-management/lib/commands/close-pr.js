@@ -1,22 +1,17 @@
 'use strict';
 
-const { promisify } = require( 'util' );
-const { tmpdir } = require( 'os' );
-const { join } = require( 'path' );
 const { Octokit } = require( '@octokit/rest' );
 const inquirer = require( 'inquirer' );
 const keytar = require( 'keytar' );
 const { log, format } = require( '../logger' );
 const Conf = require( 'conf' );
-const { mkdtemp } = require( 'fs' ).promises;
-const rimraf = promisify( require( 'rimraf' ) );
-const { run, sleep } = require( '../utils' );
+const { run } = require( '../utils' );
 const { validateNotEmpty } = require( '../validation' );
 
 const config = new Conf();
 const OWNER = 'wearerequired';
 
-async function mergePr() {
+async function closePr() {
 	// Get token from the keychain.
 	const storedGithubToken = await keytar.getPassword( 'repo-management', 'github' );
 	const lastInput = config.get( 'mergePRLastInput' );
@@ -91,7 +86,7 @@ async function mergePr() {
 		process.exit();
 	}
 
-	log( `\nUpdating the following ${ selectedPullRequests.length } pull requests:` );
+	log( `\nClosing the following ${ selectedPullRequests.length } pull requests:` );
 	log( selectedPullRequests.join( ', ' ) );
 	log();
 
@@ -117,45 +112,15 @@ async function mergePr() {
 		selectedPullRequests.map( async ( pullRequestData ) => {
 			const [ repoName, number ] = pullRequestData.split( '|' );
 
-			const checkoutDir = await mkdtemp( join( tmpdir(), 'merge-pr-' ) );
 			try {
-				await run( `gh repo clone ${ repoName } . -- --single-branch --branch master`, {
-					cwd: checkoutDir,
-				} );
-				await run( `gh pr checkout ${ number }`, { cwd: checkoutDir } );
 				await run(
-					`composer install --no-progress --prefer-dist --no-ansi --no-interaction`,
-					{
-						cwd: checkoutDir,
-					}
+					`gh pr close https://github.com/${ repoName }/pull/${ number } --delete-branch`
 				);
-				const gitStatus = await run( `git status --porcelain`, {
-					cwd: checkoutDir,
-				} );
-				const changedFiles = gitStatus.trim().split( '\n' ).filter( Boolean );
-				if ( changedFiles.length > 0 ) {
-					await run( `git commit -am "Add modified files"`, {
-						cwd: checkoutDir,
-					} );
-					await run( `git push`, {
-						cwd: checkoutDir,
-					} );
-					await sleep( 5000 );
-					await run( `gh pr merge ${ number } --squash --delete-branch`, {
-						cwd: checkoutDir,
-					} );
-				} else {
-					await run( `gh pr merge ${ number } --squash --delete-branch`, {
-						cwd: checkoutDir,
-					} );
-				}
 			} catch ( err ) {
 				console.error( err ); // eslint-disable-line no-console
-			} finally {
-				await rimraf( checkoutDir );
 			}
 		} )
 	);
 }
 
-module.exports = mergePr;
+module.exports = closePr;
