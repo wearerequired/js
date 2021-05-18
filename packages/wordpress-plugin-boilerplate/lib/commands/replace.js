@@ -93,13 +93,6 @@ async function replaceFiles() {
 
 	log();
 
-	await runStep( 'Renaming main plugin file', 'Could not rename file.', async () => {
-		await fs.rename(
-			WORKING_DIR + '/plugin-name.php',
-			WORKING_DIR + '/' + pluginSlug + '.php'
-		);
-	} );
-
 	await runStep( 'Updating README.md file', 'Could not update README.md.', async () => {
 		await fs.writeFile( WORKING_DIR + '/README.md', '# ' + pluginName + '\n' );
 	} );
@@ -124,7 +117,7 @@ async function replaceFiles() {
 				WORKING_DIR + '/package.json',
 				WORKING_DIR + '/phpcs.xml.dist',
 				WORKING_DIR + '/webpack.config.js',
-				WORKING_DIR + '/' + pluginSlug + '.php',
+				WORKING_DIR + '/plugin.php',
 				WORKING_DIR + '/inc/**/*.php',
 				WORKING_DIR + '/assets/js/src/**/*.js',
 			],

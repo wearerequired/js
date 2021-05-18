@@ -188,7 +188,6 @@ async function create( command ) {
 
 	// Rename files in local checkout.
 	await runStep( 'Renaming plugin files', 'Could not rename files.', async () => {
-		await fs.rename( pluginDir + '/plugin-name.php', pluginDir + '/' + pluginSlug + '.php' );
 		await fs.writeFile( pluginDir + '/README.md', '# ' + pluginName + '\n' );
 
 		const replacementOptions = {
@@ -197,7 +196,7 @@ async function create( command ) {
 				pluginDir + '/package.json',
 				pluginDir + '/phpcs.xml.dist',
 				pluginDir + '/webpack.config.js',
-				pluginDir + '/' + pluginSlug + '.php',
+				pluginDir + '/plugin.php',
 				pluginDir + '/inc/**/*.php',
 				pluginDir + '/assets/js/src/**/*.js',
 			],
