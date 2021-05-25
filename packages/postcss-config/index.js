@@ -1,10 +1,10 @@
 module.exports = ( ctx ) => {
 	const config = {
-		plugins: {
-			'postcss-import': {},
-			'postcss-mixins': {},
-			'postcss-nested': {},
-			'postcss-preset-env': {
+		plugins: [
+			require( 'postcss-import' ),
+			require( 'postcss-mixins' ),
+			require( 'postcss-nested' ),
+			require( 'postcss-preset-env' )( {
 				stage: 0,
 				preserve: false, // Omit pre-polyfilled CSS.
 				features: {
@@ -14,19 +14,25 @@ module.exports = ( ctx ) => {
 				autoprefixer: {
 					grid: true,
 				},
-			},
-			'postcss-hexrgba': {},
-			'css-mqpacker': {
-				sort: true,
-			},
-		},
+			} ),
+			require( 'postcss-sort-media-queries' )( {
+				sort: 'mobile-first',
+			} ),
+		],
 	};
 
 	if ( 'production' === ctx.env ) {
 		config.map = false;
-		config.plugins.cssnano = {
-			preset: [ 'default', { discardComments: { removeAll: true } } ],
-		};
+		config.plugins.push(
+			require( 'cssnano' )( {
+				preset: [
+					'default',
+					{
+						discardComments: { removeAll: true },
+					},
+				],
+			} )
+		);
 	} else if ( 'undefined' !== typeof ctx.options ) {
 		config.map = false !== ctx.options.map;
 	} else {
