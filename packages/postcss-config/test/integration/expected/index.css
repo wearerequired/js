@@ -1,0 +1,64 @@
+body {
+	color: #fff;
+}
+
+.foo .bar {
+		color: #fff;
+	}
+
+body.bar .foo {
+		color: #fff;
+	}
+
+.foo.bar {
+		color: #000;
+	}
+
+.container {
+	padding: 15px 30px;
+	max-width: calc( 80vw - 30px);
+}
+
+/* This doesn't work if custom properties are preserved */
+
+.broken-rgba-color {
+	background: rgba( --var( --color-secondary ), .5 );
+}
+
+/* This works because it's using a RGB triplet */
+
+.working-rgba-color {
+	background: rgba( --var( --color-secondary-rgb ), .5 );
+}
+
+@media only screen and ( min-width: 480px ) {
+
+body {
+		padding: 10px
+}
+	}
+
+@media only screen and ( min-width: 768px ) {
+
+.container {
+		max-width: 100%
+}
+
+.post-wrap.featured .nested {
+			margin-bottom: 1.25em
+	}
+	}
+
+@media only screen and ( min-width: 789px ) {
+
+body.bar .foo {
+			color: #000
+	}
+		}
+
+@media only screen and ( min-width: 1000px ) {
+
+.foo .bar {
+			color: #000
+	}
+		}

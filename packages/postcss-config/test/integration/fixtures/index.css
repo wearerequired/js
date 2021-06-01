@@ -1,0 +1,63 @@
+@import "mixins.css";
+@import "variables.css";
+
+body {
+	color: var( --color-primary );
+
+	@mixin bp-xs {
+		padding: 10px;
+	}
+}
+
+.foo {
+	.bar {
+		color: var( --color-primary );
+
+		@media only screen and ( min-width: 1000px ) {
+			color: var( --color-secondary );
+		}
+	}
+}
+
+.foo {
+	body.bar & {
+		color: var( --color-primary );
+
+		@media only screen and ( min-width: 789px ) {
+			color: var( --color-secondary );
+		}
+	}
+}
+
+.foo {
+	&.bar {
+		color: var( --color-secondary );
+	}
+}
+
+.container {
+	padding: var( --spacing-m ) var( --spacing-l );
+	max-width: calc( 80vw - var( --spacing-l ) );
+
+	@media only screen and ( min-width: 768px ) {
+		max-width: 100%;
+	}
+}
+
+/* This doesn't work if custom properties are preserved */
+.broken-rgba-color {
+	background: rgba( --var( --color-secondary ), .5 );
+}
+
+/* This works because it's using a RGB triplet */
+.working-rgba-color {
+	background: rgba( --var( --color-secondary-rgb ), .5 );
+}
+
+.nested {
+	.post-wrap.featured & {
+		@mixin bp-m {
+			margin-bottom: 1.25em;
+		}
+	}
+}

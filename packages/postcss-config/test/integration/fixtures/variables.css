@@ -1,0 +1,9 @@
+:root {
+	--color-primary: #fff;
+	--color-secondary: #000;
+	--color-secondary-rgb: 0, 0, 0;
+
+	--spacing-s: 10px;
+	--spacing-m: 15px;
+	--spacing-l: 30px;
+}

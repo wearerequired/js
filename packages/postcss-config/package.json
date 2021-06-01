@@ -2,6 +2,7 @@
   "name": "@wearerequired/postcss-config",
   "version": "0.1.2",
   "description": "Shareable PostCSS config used by @wearerequired.",
+  "main": "index.js",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/wearerequired/js.git"
@@ -32,5 +33,30 @@
   },
   "publishConfig": {
     "access": "public"
+  },
+  "files": [
+    "index.js"
+  ],
+  "scripts": {
+    "test": "jest",
+    "update-fixtures": "postcss --config index.js  --no-map test/integration/fixtures/index.css --output test/integration/expected/index.css && NODE_ENV=production postcss --config index.js  --no-map test/integration/fixtures/index.css --output test/integration/expected/index.minified.css"
+  },
+  "browserslist": [
+    "extends @wearerequired/browserslist-config"
+  ],
+  "jest": {
+    "testEnvironment": "node",
+    "coverageThreshold": {
+      "global": {
+        "statements": 100
+      }
+    }
+  },
+  "devDependencies": {
+    "@wearerequired/browserslist-config": "file:../browserslist-config",
+    "jest": "^27.0.3",
+    "postcss": "^7.0.35",
+    "postcss-cli": "^7.1.2",
+    "postcss-load-config": "^3.0.1"
   }
 }
