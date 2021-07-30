@@ -6,11 +6,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.1.0] - 2021-07-XX
+### Added
 
-### New Features
-
-* Initial release.
+* Merge of `@wearerequired/wordpress-plugin-boilerplate create` and `@wearerequired/wordpress-theme-boilerplate` create.
 
 [Unreleased]:https://github.com/wearerequired/js/compare/@wearerequired/generate@0.1.0...HEAD
 [0.1.0]: https://github.com/wearerequired/js/releases/tag/@wearerequired/generate@0.1.0
