@@ -157,23 +157,22 @@ async function theme( command ) {
 	const { data: repo } = response;
 
 	// Check if GitHub has created the repo.
-	var hasCommits = async function() {
+	const hasCommits = async function () {
 		await sleep( 500 );
-		let response;
+		let listCommitsResponse;
 		try {
-			response = await octokit.repos.listCommits({
+			listCommitsResponse = await octokit.repos.listCommits( {
 				owner: TEMPLATE_OWNER,
 				repo: githubSlug,
-			});
-		} catch (error) {
+			} );
+		} catch ( error ) {
 			return await hasCommits();
 		}
-		const { data: listCommits } = response;
+		const { data: listCommits } = listCommitsResponse;
 		if ( listCommits.length > 0 ) {
 			return true;
-		} else {
-			return await hasCommits();
 		}
+		return await hasCommits();
 	};
 	await hasCommits();
 
