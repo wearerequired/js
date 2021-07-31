@@ -2,7 +2,6 @@
 
 const fs = require( 'fs' ).promises;
 const simpleGit = require( 'simple-git/promise' );
-const { Octokit } = require( '@octokit/rest' );
 const inquirer = require( 'inquirer' );
 const keytar = require( 'keytar' );
 const replace = require( 'replace-in-file' );
@@ -10,7 +9,8 @@ const { pascalCase, camelCase, paramCase, snakeCase } = require( 'change-case' )
 const terminalLink = require( 'terminal-link' );
 const { log, format } = require( '../logger' );
 const { validateSlug, validatePHPNamespace, validateNotEmpty } = require( '../validation' );
-const { sleep, runShellCommand, runStep } = require( '../utils' );
+const { runShellCommand, runStep } = require( '../utils' );
+const github = require( '../github' );
 
 const TEMPLATE_OWNER = 'wearerequired';
 const TEMPLATE_REPO = 'wordpress-theme-boilerplate';
@@ -115,6 +115,28 @@ async function theme( command ) {
 
 	log();
 
+	// Add token to the keychain.
+	if ( storedGithubToken !== githubToken ) {
+		await keytar.setPassword( 'required-generate', 'github', githubToken );
+	}
+
+	github.initialize( githubToken );
+
+	// Check if repository doesn't already exist.
+	try {
+		const repoExists = await github.hasRepository( TEMPLATE_OWNER, githubSlug );
+		if ( repoExists ) {
+			log( format.error( `Repository ${ TEMPLATE_OWNER }/${ githubSlug } already exists.` ) );
+			process.exit();
+		}
+	} catch ( error ) {
+		log(
+			error,
+			format.error( '\n\nCould not verify that the repository does not already exist.' )
+		);
+		process.exit();
+	}
+
 	const themeDir = WORKING_DIR + '/' + themeSlug;
 
 	// Check if theme slug doesn't already exist in working directory.
@@ -131,55 +153,29 @@ async function theme( command ) {
 		process.exit();
 	}
 
-	// Add token to the keychain.
-	if ( storedGithubToken !== githubToken ) {
-		await keytar.setPassword( 'required-generate', 'github', githubToken );
-	}
-
-	const octokit = new Octokit( {
-		auth: githubToken,
-		previews: [ 'baptiste' ],
-	} );
-
 	// Create the repository.
-	let response;
+	let githubRepo;
 	await runStep( 'Creating repository using template', 'Could not create repo.', async () => {
-		response = await octokit.repos.createUsingTemplate( {
-			template_owner: TEMPLATE_OWNER,
-			template_repo: TEMPLATE_REPO,
+		githubRepo = await github.createRepositoryUsingTemplate( {
+			templateOwner: TEMPLATE_OWNER,
+			templateName: TEMPLATE_REPO,
 			owner: TEMPLATE_OWNER,
 			name: githubSlug,
-			private: privateRepo,
+			isPrivate: privateRepo,
 			description: themeDescription,
 		} );
 	} );
 
-	const { data: repo } = response;
-
-	// Check if GitHub has created the repo.
-	const hasCommits = async function () {
-		await sleep( 500 );
-		let listCommitsResponse;
-		try {
-			listCommitsResponse = await octokit.repos.listCommits( {
-				owner: TEMPLATE_OWNER,
-				repo: githubSlug,
-			} );
-		} catch ( error ) {
-			return await hasCommits();
-		}
-		const { data: listCommits } = listCommitsResponse;
-		if ( listCommits.length > 0 ) {
-			return true;
-		}
-		return await hasCommits();
-	};
-	await hasCommits();
+	// Wait until the repository is ready to be cloned.
+	await runStep( 'Waiting until repository is ready', 'Could not create repo.', async () => {
+		await github.waitUntilRepositoryIsReady( githubRepo.owner.login, githubRepo.name );
+	} );
 
 	const git = simpleGit();
+
 	// Clone the repository.
 	await runStep( 'Cloning repository into a new directory', 'Git checkout failed.', async () => {
-		await git.clone( repo.ssh_url, themeDir );
+		await git.clone( githubRepo.ssh_url, themeDir );
 	} );
 
 	// Rename files in local checkout.
@@ -246,7 +242,7 @@ async function theme( command ) {
 
 	log( format.success( '\n✅  Done!' ) );
 	log( 'Directory: ' + themeDir );
-	log( 'GitHub Repo: ' + repo.html_url );
+	log( 'GitHub Repo: ' + githubRepo.html_url );
 }
 
 module.exports = theme;
