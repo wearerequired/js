@@ -13,9 +13,8 @@ const { log, format } = require( '../logger' );
 const { validateSlug, validatePHPNamespace, validateNotEmpty } = require( '../validation' );
 const { runShellCommand, runStep } = require( '../utils' );
 const github = require( '../github' );
+const config = require( '../config' );
 
-const TEMPLATE_OWNER = 'wearerequired';
-const TEMPLATE_REPO = 'wordpress-plugin-boilerplate';
 const WORKING_DIR = process.cwd();
 
 async function plugin( command ) {
@@ -128,13 +127,17 @@ async function plugin( command ) {
 		await keytar.setPassword( 'required-generate', 'github', githubToken );
 	}
 
+	const githubOrganization = config.get( 'githubOrganization' );
+
 	github.initialize( githubToken );
 
 	// Check if repository doesn't already exist.
 	try {
-		const repoExists = await github.hasRepository( TEMPLATE_OWNER, githubSlug );
+		const repoExists = await github.hasRepository( githubOrganization, githubSlug );
 		if ( repoExists ) {
-			log( format.error( `Repository ${ TEMPLATE_OWNER }/${ githubSlug } already exists.` ) );
+			log(
+				format.error( `Repository ${ githubOrganization }/${ githubSlug } already exists.` )
+			);
 			process.exit();
 		}
 	} catch ( error ) {
@@ -164,10 +167,11 @@ async function plugin( command ) {
 	// Create the repository.
 	let githubRepo;
 	await runStep( 'Creating repository using template', 'Could not create repo.', async () => {
+		const [ templateOwner, templateName ] = config.get( 'pluginTemplateRepo' ).split( '/' );
 		githubRepo = await github.createRepositoryUsingTemplate( {
-			templateOwner: TEMPLATE_OWNER,
-			templateName: TEMPLATE_REPO,
-			owner: TEMPLATE_OWNER,
+			templateOwner,
+			templateName,
+			owner: githubOrganization,
 			name: githubSlug,
 			isPrivate: privateRepo,
 			description: pluginDescription,
