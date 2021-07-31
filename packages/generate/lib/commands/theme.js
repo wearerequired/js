@@ -12,21 +12,33 @@ const { validateSlug, validatePHPNamespace, validateNotEmpty } = require( '../va
 const { runShellCommand, runStep } = require( '../utils' );
 const github = require( '../github' );
 const config = require( '../config' );
+const { name: packageName } = require( '../../package.json' );
 
 const WORKING_DIR = process.cwd();
 
 async function theme( command ) {
-	if ( ! command.skipIntro ) {
-		log(
-			format.title( '👋  Welcome to the Generate CLI Tool\n\n' ) +
-				'This tool will guide you through the setup process.\n' +
-				'Before you can start please make sure you have created a ' +
-				terminalLink(
-					'personal access token for GitHub',
-					'https://github.com/settings/tokens'
-				) +
-				" with the 'repo' scope selected.\nAfter the first run the token gets stored in your system's keychain and will be pre-filled on next runs.\n"
-		);
+	// Get token from the keychain.
+	const storedGithubToken = await keytar.getPassword( 'required-generate', 'github' );
+
+	if ( ! command.skipIntro && ! config.get( 'skipIntros' ) ) {
+		const intro = `${ format.title( `👋  Welcome to ${ packageName }` ) }
+
+This tool will guide you through the setup process of a new ${ format.comment(
+			'WordPress plugin'
+		) }.
+`;
+
+		if ( ! storedGithubToken ) {
+			log( `${ intro }
+Before you can start please make sure you have created a ${ terminalLink(
+				'personal access token for GitHub',
+				'https://github.com/settings/tokens'
+			) } with the 'repo' scope selected.
+After the first run the token gets stored in your system's keychain and will be pre-filled on next runs.
+` );
+		} else {
+			log( intro );
+		}
 
 		const { isReady } = await inquirer.prompt( [
 			{
@@ -48,9 +60,6 @@ async function theme( command ) {
 
 		log();
 	}
-
-	// Get token from the keychain.
-	const storedGithubToken = await keytar.getPassword( 'required-generate', 'github' );
 
 	const {
 		githubToken,

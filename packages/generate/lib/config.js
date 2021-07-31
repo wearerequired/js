@@ -1,6 +1,10 @@
 const Conf = require( 'conf' );
 
 const schema = {
+	skipIntros: {
+		type: 'boolean',
+		default: false,
+	},
 	pluginTemplateRepo: {
 		type: 'string',
 		pattern: '^[a-zA-Z0-9-]+/[a-zA-Z0-9.-]+$',
@@ -18,6 +22,9 @@ const schema = {
 	},
 };
 
-const config = new Conf( { schema } );
+// https://github.com/sindresorhus/conf#migrations
+const migrations = {};
+
+const config = new Conf( { schema, migrations } );
 
 module.exports = config;
