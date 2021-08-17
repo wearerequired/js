@@ -34,6 +34,8 @@ jobs:
         uses: actions/setup-node@v2
         with:
           node-version: ${{ matrix.node-version }}
+          cache: npm
+          cache-dependency-path: packages/postcss-config/package.json
       - name: Install dependencies
         working-directory: packages/postcss-config
         run: npm i
