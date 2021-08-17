@@ -23,5 +23,9 @@
   "homepage": "https://github.com/wearerequired/js/tree/master/packages/browserslist-config#readme",
   "publishConfig": {
     "access": "public"
-  }
+  },
+  "files": [
+    "index.js",
+    "modern.js"
+  ]
 }

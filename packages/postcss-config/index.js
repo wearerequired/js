@@ -27,6 +27,8 @@ module.exports = ( ctx ) => {
 		config.plugins.cssnano = {
 			preset: [ 'default', { discardComments: { removeAll: true } } ],
 		};
+	} else if ( 'undefined' !== typeof ctx.options ) {
+		config.map = false !== ctx.options.map;
 	} else {
 		config.map = true;
 	}

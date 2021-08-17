@@ -1,0 +1,44 @@
+name: PostCSS Config Test
+
+on:
+  pull_request:
+    branches:
+      - master
+    paths:
+      - 'packages/postcss-config/**'
+      - 'packages/browserslist-config/**'
+      - '.github/workflows/postcss-config-test.yml'
+  push:
+    branches:
+      - master
+    paths:
+      - 'packages/postcss-config/**'
+      - 'packages/browserslist-config/**'
+      - '.github/workflows/postcss-config-test.yml'
+
+jobs:
+  test:
+    name: Node.js ${{ matrix.node-version }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version:
+          - 14
+          - 12
+          - 10
+
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v2
+      - name: Install Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: npm
+          cache-dependency-path: packages/postcss-config/package.json
+      - name: Install dependencies
+        working-directory: packages/postcss-config
+        run: npm i
+      - name: Run tests
+        working-directory: packages/postcss-config
+        run: npm run test
