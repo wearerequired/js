@@ -7,7 +7,6 @@ const keytar = require( 'keytar' );
 const replace = require( 'replace-in-file' );
 const { paramCase } = require( 'change-case' );
 const terminalLink = require( 'terminal-link' );
-const isValidHostname = require( 'is-valid-hostname' );
 const cryptoRandomString = require( 'crypto-random-string' );
 const { log, format } = require( '../logger' );
 const {
@@ -16,6 +15,7 @@ const {
 	validateAlphanumericDash,
 	validateAlphanumericUnderscore,
 	validateNotEmpty,
+	validateHostname,
 } = require( '../validation' );
 const { runStep } = require( '../utils' );
 const github = require( '../github' );
@@ -126,14 +126,14 @@ After the first run the token gets stored in your system's keychain and will be 
 			name: 'projectHost',
 			default: ( answers ) => `${ answers.projectSlug }.ch`,
 			message: 'Enter the hostname of production (example.com):',
-			validate: isValidHostname,
+			validate: validateHostname,
 		},
 		{
 			type: 'input',
 			name: 'stagingHost',
 			default: ( answers ) => 'staging.' + answers.projectHost,
 			message: 'Enter the hostname of staging (staging.example.com):',
-			validate: isValidHostname,
+			validate: validateHostname,
 		},
 		{
 			type: 'input',
@@ -147,7 +147,7 @@ After the first run the token gets stored in your system's keychain and will be 
 			name: 'hostingHostname',
 			default: '',
 			message: 'Enter the hostname for the hosting server (s059.cyon.net):',
-			validate: isValidHostname,
+			validate: validateHostname,
 		},
 		{
 			type: 'input',
