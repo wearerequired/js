@@ -24,13 +24,15 @@
   "homepage": "https://github.com/wearerequired/js/tree/master/packages/postcss-config#readme",
   "dependencies": {
     "css-mqpacker": "^7.0.0",
-    "cssnano": "^5.0.4",
-    "postcss": "^8.3.0",
+    "cssnano": "^5.0.8",
     "postcss-import": "^14.0.2",
-    "postcss-mixins": "^8.0.0",
-    "postcss-nested": "^5.0.5",
+    "postcss-mixins": "^8.1.0",
+    "postcss-nested": "^5.0.6",
     "postcss-preset-env": "^6.7.0",
-    "postcss-sort-media-queries": "^3.10.11"
+    "postcss-sort-media-queries": "^3.11.12"
+  },
+  "peerDependencies": {
+    "postcss": "^8.0.0"
   },
   "publishConfig": {
     "access": "public"
@@ -55,9 +57,9 @@
   },
   "devDependencies": {
     "@wearerequired/browserslist-config": "file:../browserslist-config",
-    "jest": "^27.0.3",
-    "postcss": "^7.0.35",
-    "postcss-cli": "^7.1.2",
-    "postcss-load-config": "^3.0.1"
+    "jest": "^27.1.0",
+    "postcss": "^8.3.6",
+    "postcss-cli": "^8.3.1",
+    "postcss-load-config": "^3.1.0"
   }
 }
