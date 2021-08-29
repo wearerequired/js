@@ -124,7 +124,7 @@ After the first run the token gets stored in your system's keychain and will be 
 		{
 			type: 'input',
 			name: 'projectHost',
-			default: '',
+			default: ( answers ) => `${ answers.projectSlug }.ch`,
 			message: 'Enter the hostname of production (example.com):',
 			validate: isValidHostname,
 		},
@@ -139,7 +139,7 @@ After the first run the token gets stored in your system's keychain and will be 
 			type: 'input',
 			name: 'developmentSubdomain',
 			default: ( answers ) => answers.projectHost.split( '.' )[ 0 ],
-			message: 'Enter the subdomain for development:',
+			message: 'Enter the subdomain for development (example.required.test):',
 			validate: validateAlphanumericDash,
 		},
 		{
@@ -153,7 +153,7 @@ After the first run the token gets stored in your system's keychain and will be 
 			type: 'input',
 			name: 'hostingUsername',
 			default: '',
-			message: 'Enter the username for the hosting server (required):',
+			message: 'Enter the SSH username for the hosting server (required):',
 			validate: validateAlphanumericDash,
 		},
 		{
@@ -166,7 +166,7 @@ After the first run the token gets stored in your system's keychain and will be 
 		{
 			type: 'input',
 			name: 'tablePrefix',
-			default: '',
+			default: ( answers ) => `${ answers.projectSlug }_`,
 			message: 'Enter the WordPress database table prefix (project_):',
 			validate: validateAlphanumericUnderscore,
 		},
