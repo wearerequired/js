@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 * Don't rename plugin main file. See [wearerequired/wordpress-plugin-boilerplate#133](https://github.com/wearerequired/wordpress-plugin-boilerplate/pull/133).
+* Deprecated, use [@wearerequired/generate](https://github.com/wearerequired/js/tree/master/packages/generate) instead.
 
 ## [0.1.2] - 2021-03-17
 
