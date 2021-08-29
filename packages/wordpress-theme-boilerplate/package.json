@@ -1,6 +1,6 @@
 {
   "name": "@wearerequired/wordpress-theme-boilerplate",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Create a WordPress theme.",
   "repository": {
     "type": "git",

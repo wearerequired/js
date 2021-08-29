@@ -1,6 +1,6 @@
 {
   "name": "@wearerequired/generate",
-  "version": "0.0.1-alpha.1",
+  "version": "0.1.0",
   "description": "Create a WordPress plugin or theme.",
   "repository": {
     "type": "git",
