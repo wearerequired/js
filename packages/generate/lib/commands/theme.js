@@ -24,7 +24,7 @@ async function theme( command ) {
 		const intro = `${ format.title( `👋  Welcome to ${ packageName }` ) }
 
 This tool will guide you through the setup process of a new ${ format.comment(
-			'WordPress plugin'
+			'WordPress theme'
 		) }.
 `;
 
