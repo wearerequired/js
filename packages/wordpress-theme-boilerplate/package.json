@@ -1,6 +1,6 @@
 {
   "name": "@wearerequired/wordpress-theme-boilerplate",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Create a WordPress theme.",
   "repository": {
     "type": "git",
@@ -28,7 +28,7 @@
     "commander": "^6.0.0",
     "inquirer": "^8.0.0",
     "keytar": "^7.0.0",
-    "ora": "^5.0.0",
+    "ora": "^6.0.0",
     "replace-in-file": "^6.1.0",
     "simple-git": "^2.15.0",
     "terminal-link": "^2.1.1"

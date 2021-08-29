@@ -1,6 +1,6 @@
 {
   "name": "@wearerequired/generate",
-  "version": "0.0.1-alpha.1",
+  "version": "0.1.0",
   "description": "Create a WordPress plugin or theme.",
   "repository": {
     "type": "git",
@@ -29,7 +29,7 @@
     "conf": "^10.0.1",
     "inquirer": "^8.0.0",
     "keytar": "^7.0.0",
-    "ora": "^5.0.0",
+    "ora": "^6.0.0",
     "replace-in-file": "^6.1.0",
     "rimraf": "^3.0.2",
     "simple-git": "^2.15.0",

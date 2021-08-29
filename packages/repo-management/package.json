@@ -1,6 +1,6 @@
 {
   "name": "@wearerequired/repo-management",
-  "version": "0.1.2-alpha.0",
+  "version": "0.2.0",
   "description": "Manage GitHub repos.",
   "repository": {
     "type": "git",
@@ -30,7 +30,7 @@
     "conf": "^10.0.1",
     "inquirer": "^8.0.0",
     "keytar": "^7.0.0",
-    "ora": "^5.1.0",
+    "ora": "^6.0.0",
     "rimraf": "^3.0.2",
     "simple-git": "^2.21.0",
     "untildify": "^4.0.0"
