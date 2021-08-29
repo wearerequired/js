@@ -245,6 +245,9 @@ After the first run the token gets stored in your system's keychain and will be 
 
 	// Rename files in local checkout.
 	await runStep( 'Renaming project files', 'Could not rename files.', async () => {
+		const generateRandomKeySalt = () =>
+			cryptoRandomString( { length: 64, characters: CHARACTERS } );
+
 		const replacementOptions = {
 			files: [
 				projectDir + '/.env.lokal',
@@ -291,14 +294,14 @@ After the first run the token gets stored in your system's keychain and will be 
 				hostingPath,
 				tablePrefix,
 				projectSlug,
-				cryptoRandomString( { length: 64, characters: CHARACTERS } ),
-				cryptoRandomString( { length: 64, characters: CHARACTERS } ),
-				cryptoRandomString( { length: 64, characters: CHARACTERS } ),
-				cryptoRandomString( { length: 64, characters: CHARACTERS } ),
-				cryptoRandomString( { length: 64, characters: CHARACTERS } ),
-				cryptoRandomString( { length: 64, characters: CHARACTERS } ),
-				cryptoRandomString( { length: 64, characters: CHARACTERS } ),
-				cryptoRandomString( { length: 64, characters: CHARACTERS } ),
+				generateRandomKeySalt(),
+				generateRandomKeySalt(),
+				generateRandomKeySalt(),
+				generateRandomKeySalt(),
+				generateRandomKeySalt(),
+				generateRandomKeySalt(),
+				generateRandomKeySalt(),
+				generateRandomKeySalt(),
 			],
 		};
 
