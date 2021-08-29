@@ -15,13 +15,13 @@ const validatePHPNamespace = async ( input ) => {
 };
 
 const validatePath = async ( input ) => {
-	const regex = new RegExp('^\/([A-z0-9-_+]+\/)*([A-z0-9]+\/)$');
+	const regex = new RegExp( '^/([A-z0-9-_+]+/)*([A-z0-9]+/)$' );
 	if ( ! input || ! regex.test( input ) ) {
 		return 'Is not a valid unix path.';
 	}
 
 	return true;
-}
+};
 
 const validateAlphanumericDash = async ( input ) => {
 	if ( ! input || /[^a-z0-9\-]/.test( input ) ) {
