@@ -28,7 +28,11 @@ const schema = {
 };
 
 // https://github.com/sindresorhus/conf#migrations
-const migrations = {};
+const migrations = {
+	'0.2.0': ( store ) => {
+		store.set( 'projectTemplateRepos', 'wearerequired/wordpress-project-boilerplate' );
+	},
+};
 
 const config = new Conf( { schema, migrations } );
 
