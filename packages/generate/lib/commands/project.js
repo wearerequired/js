@@ -141,6 +141,7 @@ After the first run the token gets stored in your system's keychain and will be 
 			default: ( answers ) => answers.projectHost.split( '.' )[ 0 ],
 			message: 'Enter the subdomain for development (example.required.test):',
 			validate: validateAlphanumericDash,
+			filter: ( value ) => value.replace( '.required.test', '' ),
 		},
 		{
 			type: 'input',
@@ -166,7 +167,7 @@ After the first run the token gets stored in your system's keychain and will be 
 		{
 			type: 'input',
 			name: 'tablePrefix',
-			default: ( answers ) => `${ answers.projectSlug }_`,
+			default: ( answers ) => `${ answers.projectSlug.replace( /-/g, '_' ) }_`,
 			message: 'Enter the WordPress database table prefix (project_):',
 			validate: validateAlphanumericUnderscore,
 		},
