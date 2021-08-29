@@ -4,6 +4,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Changed
+
+* Require PostCSS 8.
+* Replace deprecated `css-mqpacker` with `postcss-sort-media-queries` for sorting and merging media queries.
+* Update `cssnano` from [v4 to v5](https://github.com/cssnano/cssnano/releases).
+* Update `postcss-import` from [v12 to v14](https://github.com/postcss/postcss-import/blob/14.0.2/CHANGELOG.md).
+* Update `postcss-mixins` from [v6 tp v8](https://github.com/postcss/postcss-mixins/blob/8.1.0/CHANGELOG.md).
+* Update `postcss-nested` from [v4 to v5](https://github.com/postcss/postcss-nested/blob/5.0.6/CHANGELOG.md).
+
+### Removed
+
+* Remove support for shorthand hex values for `rgba()` function.
+
 ## [0.1.3] - 2021-0829
 
 ### Added
