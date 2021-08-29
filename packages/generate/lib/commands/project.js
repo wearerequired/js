@@ -7,10 +7,16 @@ const keytar = require( 'keytar' );
 const replace = require( 'replace-in-file' );
 const { paramCase } = require( 'change-case' );
 const terminalLink = require( 'terminal-link' );
-const isValidHostname = require('is-valid-hostname');
-const cryptoRandomString = require('crypto-random-string');
+const isValidHostname = require( 'is-valid-hostname' );
+const cryptoRandomString = require( 'crypto-random-string' );
 const { log, format } = require( '../logger' );
-const { validateSlug, validatePath, validateAlphanumericDash, validateAlphanumericUnderscore, validateNotEmpty } = require( '../validation' );
+const {
+	validateSlug,
+	validatePath,
+	validateAlphanumericDash,
+	validateAlphanumericUnderscore,
+	validateNotEmpty,
+} = require( '../validation' );
 const { runStep } = require( '../utils' );
 const github = require( '../github' );
 const config = require( '../config' );
@@ -18,7 +24,8 @@ const { name: packageName } = require( '../../package.json' );
 
 const WORKING_DIR = process.cwd();
 // @link https://developer.wordpress.org/reference/functions/wp_generate_password/#more-information
-const CHARACTERS = '!@#$%^&*()-_ []{}<>~`+=,.;:/?|abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+const CHARACTERS =
+	'!@#$%^&*()-_ []{}<>~`+=,.;:/?|abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
 
 async function project( command ) {
 	// Get token from the keychain.
@@ -131,7 +138,7 @@ After the first run the token gets stored in your system's keychain and will be 
 		{
 			type: 'input',
 			name: 'developmentSubdomain',
-			default: ( answers ) => answers.projectHost.split('.')[0],
+			default: ( answers ) => answers.projectHost.split( '.' )[ 0 ],
 			message: 'Enter the subdomain for development:',
 			validate: validateAlphanumericDash,
 		},
@@ -278,20 +285,20 @@ After the first run the token gets stored in your system's keychain and will be 
 				developmentSubdomain + '.required.test',
 				stagingHost,
 				projectHost,
-				'${COMPOSE_PROJECT_NAME}.' + projectHost.split('.').pop(),
+				'${COMPOSE_PROJECT_NAME}.' + projectHost.split( '.' ).pop(),
 				hostingUsername,
 				hostingHostname,
 				hostingPath,
 				tablePrefix,
 				projectSlug,
-				cryptoRandomString({length: 64, characters: CHARACTERS}),
-				cryptoRandomString({length: 64, characters: CHARACTERS}),
-				cryptoRandomString({length: 64, characters: CHARACTERS}),
-				cryptoRandomString({length: 64, characters: CHARACTERS}),
-				cryptoRandomString({length: 64, characters: CHARACTERS}),
-				cryptoRandomString({length: 64, characters: CHARACTERS}),
-				cryptoRandomString({length: 64, characters: CHARACTERS}),
-				cryptoRandomString({length: 64, characters: CHARACTERS}),
+				cryptoRandomString( { length: 64, characters: CHARACTERS } ),
+				cryptoRandomString( { length: 64, characters: CHARACTERS } ),
+				cryptoRandomString( { length: 64, characters: CHARACTERS } ),
+				cryptoRandomString( { length: 64, characters: CHARACTERS } ),
+				cryptoRandomString( { length: 64, characters: CHARACTERS } ),
+				cryptoRandomString( { length: 64, characters: CHARACTERS } ),
+				cryptoRandomString( { length: 64, characters: CHARACTERS } ),
+				cryptoRandomString( { length: 64, characters: CHARACTERS } ),
 			],
 		};
 
@@ -309,7 +316,6 @@ After the first run the token gets stored in your system's keychain and will be 
 	log( format.success( '\n✅  Done!' ) );
 	log( 'Directory: ' + projectDir );
 	log( 'GitHub Repo: ' + githubRepo.html_url );
-
 }
 
 module.exports = project;
