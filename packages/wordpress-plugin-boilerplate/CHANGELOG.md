@@ -30,7 +30,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Initial release.
 
 [Unreleased]:https://github.com/wearerequired/js/compare/@wearerequired/wordpress-plugin-boilerplate@0.1.3...HEAD
-[0.1.2]: https://github.com/wearerequired/js/compare/@wearerequired/wordpress-plugin-boilerplate@0.1.2...@wearerequired/wordpress-plugin-boilerplate@0.1.3
+[0.1.3]: https://github.com/wearerequired/js/compare/@wearerequired/wordpress-plugin-boilerplate@0.1.2...@wearerequired/wordpress-plugin-boilerplate@0.1.3
 [0.1.2]: https://github.com/wearerequired/js/compare/@wearerequired/wordpress-plugin-boilerplate@0.1.1...@wearerequired/wordpress-plugin-boilerplate@0.1.2
 [0.1.1]: https://github.com/wearerequired/js/compare/@wearerequired/wordpress-plugin-boilerplate@0.1.0...@wearerequired/wordpress-plugin-boilerplate@0.1.1
 [0.1.0]: https://github.com/wearerequired/js/releases/tag/@wearerequired/wordpress-plugin-boilerplate@0.1.0
