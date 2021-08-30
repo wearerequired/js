@@ -17,3 +17,11 @@ Command for bootstrapping a new WordPress theme based on the [WordPress Theme Bo
 ```bash
 npx @wearerequired/generate@next wordpress-theme
 ```
+
+## wordpress-project
+
+Command for bootstrapping a new WordPress project based on the [WordPress Project Boilerplate](https://github.com/wearerequired/wordpress-project-boilerplate).
+
+```bash
+npx @wearerequired/generate@next wordpress-project
+```
