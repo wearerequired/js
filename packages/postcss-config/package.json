@@ -23,7 +23,6 @@
   },
   "homepage": "https://github.com/wearerequired/js/tree/master/packages/postcss-config#readme",
   "dependencies": {
-    "css-mqpacker": "^7.0.0",
     "cssnano": "^5.0.8",
     "postcss-import": "^14.0.2",
     "postcss-mixins": "^8.1.0",
