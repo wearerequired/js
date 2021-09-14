@@ -16,7 +16,6 @@
   "scripts": {
     "publish:check": "lerna updated",
     "publish:dev": "lerna publish --dist-tag next",
-    "publish:patch": "lerna publish --dist-tag patch",
     "publish:prod": "lerna publish"
   }
 }
