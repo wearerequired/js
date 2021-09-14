@@ -16,6 +16,7 @@ const {
 	validateAlphanumericUnderscore,
 	validateNotEmpty,
 	validateHostname,
+	validateCommaListHostname,
 } = require( '../validation' );
 const { runStep } = require( '../utils' );
 const github = require( '../github' );
@@ -76,11 +77,15 @@ After the first run the token gets stored in your system's keychain and will be 
 		githubToken,
 		projectName,
 		projectDescription,
+		isMultisite,
 		projectSlug,
 		githubSlug,
 		projectHost,
 		stagingHost,
 		developmentSubdomain,
+		productionHostAliases,
+		stagingHostAliases,
+		developmentHostAliases,
 		hostingHostname,
 		hostingUsername,
 		hostingPath,
@@ -108,17 +113,22 @@ After the first run the token gets stored in your system's keychain and will be 
 			message: 'Enter the description of the project:',
 		},
 		{
+			type: 'confirm',
+			name: 'isMultisite',
+			message: 'Is the project a multisite?:',
+		},
+		{
 			type: 'input',
 			name: 'projectSlug',
 			default: ( answers ) => paramCase( answers.projectName ),
-			message: 'Enter the slug of the project:',
+			message: 'Enter the project slug:',
 			validate: validateSlug,
 		},
 		{
 			type: 'input',
 			name: 'githubSlug',
 			default: ( answers ) => answers.projectSlug,
-			message: 'Enter the slug of the GitHub repo:',
+			message: 'Enter the slug for the GitHub repo:',
 			validate: validateSlug,
 		},
 		{
@@ -142,6 +152,33 @@ After the first run the token gets stored in your system's keychain and will be 
 			message: 'Enter the subdomain for development (example.required.test):',
 			validate: validateAlphanumericDash,
 			filter: ( value ) => value.replace( '.required.test', '' ),
+		},
+		{
+			type: 'input',
+			name: 'productionHostAliases',
+			message: 'Enter comma-separated list of production hostname aliases (example.ch,example.de):',
+			validate: validateCommaListHostname,
+			when( answers ) {
+				return answers.isMultisite
+			},
+		},
+		{
+			type: 'input',
+			name: 'stagingHostAliases',
+			message: 'Enter comma-separated list of staging hostname aliases ((staging.example.ch,staging.example.de):',
+			validate: validateCommaListHostname,
+			when( answers ) {
+				return answers.isMultisite
+			},
+		},
+		{
+			type: 'input',
+			name: 'developmentHostAliases',
+			message: 'Enter comma-separated list of development hostname aliases ( (example-ch.required.test,example-de.required.test):',
+			validate: validateCommaListHostname,
+			when( answers ) {
+				return answers.isMultisite
+			},
 		},
 		{
 			type: 'input',
@@ -171,7 +208,6 @@ After the first run the token gets stored in your system's keychain and will be 
 			message: 'Enter the WordPress database table prefix (project_):',
 			validate: validateAlphanumericUnderscore,
 		},
-		// TODO: Add option to create a multisite network. PROJECT_SERVER_ALIAS and PROJECT_IS_MULTISITE in .env.lokal. WP_ALLOW_MULTISITE etc in .env
 	] );
 
 	log();
@@ -249,30 +285,34 @@ After the first run the token gets stored in your system's keychain and will be 
 		const generateRandomKeySalt = () =>
 			cryptoRandomString( { length: 64, characters: CHARACTERS } );
 
-		const replacementOptions = {
+		const multisiteConfig = `
+## MULTISITE
+WP_ALLOW_MULTISITE=true
+MULTISITE=true
+SUBDOMAIN_INSTALL=true
+DOMAIN_CURRENT_SITE=project-name.required.test
+PATH_CURRENT_SITE="/"
+SITE_ID_CURRENT_SITE=1
+BLOG_ID_CURRENT_SITE=1
+NOBLOGREDIRECT=https://project-name.required.test
+
+## COOKIE
+COOKIE_DOMAIN=""
+COOKIEPATH="/"
+SITECOOKIEPATH="/"
+ADMIN_COOKIE_PATH="/wp-admin"
+`;
+
+		if ( isMultisite ) {
+			fs.appendFile( projectDir + '/.local-server/.env', multisiteConfig );
+		}
+
+		const envReplacementOptions = {
 			files: [
-				projectDir + '/.env.lokal',
-				projectDir + '/README.md',
-				projectDir + '/composer.json',
-				projectDir + '/phpcs.xml.dist',
-				projectDir + '/deploy.yml',
-				projectDir + '/wp-cli.yml',
 				projectDir + '/.local-server/.env',
-				projectDir + '/.local-server/.htaccess',
 			],
 			from: [
-				/Project Name/g,
-				/Project description\./g,
-				/wordpress-project-boilerplate/g,
-				/project-name\.required\.test/g,
-				/staging.project-name\.ch/g,
-				/project-name\.ch/g,
-				/\${COMPOSE_PROJECT_NAME}\.ch/g,
-				/hosting-username/g,
-				/hostname\.ch/g,
-				/\/home\/required\/www\//g,
 				/wp_table_prefix_/g,
-				/project-name/g,
 				/\[\[AUTH_KEY\]\]/g,
 				/\[\[SECURE_AUTH_KEY\]\]/g,
 				/\[\[LOGGED_IN_KEY\]\]/g,
@@ -283,18 +323,7 @@ After the first run the token gets stored in your system's keychain and will be 
 				/\[\[NONCE_SALT\]\]/g,
 			],
 			to: [
-				projectName,
-				projectDescription,
-				githubSlug,
-				developmentSubdomain + '.required.test',
-				stagingHost,
-				projectHost,
-				'${COMPOSE_PROJECT_NAME}.' + projectHost.split( '.' ).pop(),
-				hostingUsername,
-				hostingHostname,
-				hostingPath,
 				tablePrefix,
-				projectSlug,
 				generateRandomKeySalt(),
 				generateRandomKeySalt(),
 				generateRandomKeySalt(),
@@ -306,6 +335,70 @@ After the first run the token gets stored in your system's keychain and will be 
 			],
 		};
 
+		const multisiteReplacementOptions = {
+			files: [
+				projectDir + '/.env.lokal',
+			],
+			from: [
+				/#PROJECT_SERVER_ALIAS=/,
+				/#PROJECT_IS_MULTISITE=true/,
+				/#MIGRATE_PRODUCTION_FIND=/,
+				/#MIGRATE_PRODUCTION_REPLACE=/,
+				/#MIGRATE_STAGING_FIND=/,
+				/#MIGRATE_STAGING_REPLACE=/,
+			],
+			to: [
+				'PROJECT_SERVER_ALIAS=' + developmentHostAliases,
+				'PROJECT_IS_MULTISITE=true',
+				'MIGRATE_PRODUCTION_FIND=' + productionHostAliases,
+				'MIGRATE_PRODUCTION_REPLACE=' + developmentHostAliases,
+				'MIGRATE_STAGING_FIND=' + stagingHostAliases,
+				'MIGRATE_STAGING_REPLACE=' + developmentHostAliases,
+			],
+		};
+
+		const replacementOptions = {
+			files: [
+				projectDir + '/.env.lokal',
+				projectDir + '/README.md',
+				projectDir + '/composer.json',
+				projectDir + '/phpcs.xml.dist',
+				projectDir + '/deploy.yml',
+				projectDir + '/wp-cli.yml',
+				projectDir + '/.local-server/.env',
+				projectDir + '/.local-server/.htaccess',
+				projectDir + '/.local-server/.env',
+			],
+			from: [
+				/Project Name/g, // phpcs.xml.dist & Readme.md
+				/Project description\./g, // composer.json
+				/project-name\.required\.test/g, // .local-server/.env, Readme.md
+				/staging\.project-name\.ch/g, // .local-server/.env, .local-server/.htaccess, Readme.md
+				/project-name\.ch/g, // .local-server/.env, .local-server/.htaccess, Readme.md
+				/\${COMPOSE_PROJECT_NAME}\.ch/g, //.env.lokal
+				/hosting-username/g, // deploy.yml & Readme.md
+				/hostname\.ch/g, // .local-server/.env, .local-server/.htaccess, Readme.md, wp-cli.yml
+				/\/home\/required\/www\//g, // wp-cli.yml
+				/project-name/g, // .local-server/.env, .local-server/.htaccess, Readme.md, wp-cli.yml, deploy.yml, composer.json, .env.lokal
+			],
+			to: [
+				projectName,
+				projectDescription,
+				developmentSubdomain + '.required.test',
+				stagingHost,
+				projectHost,
+				'${COMPOSE_PROJECT_NAME}.' + projectHost.split( '.' ).pop(),
+				hostingUsername,
+				hostingHostname,
+				hostingPath,
+				projectSlug,
+			],
+		};
+
+		await replace( envReplacementOptions );
+		if ( isMultisite ) {
+			await replace( multisiteReplacementOptions );
+		}
 		await replace( replacementOptions );
 	} );
 
