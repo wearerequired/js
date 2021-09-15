@@ -162,7 +162,7 @@ After the first run the token gets stored in your system's keychain and will be 
 		isMultisite,
 		projectHost,
 		stagingHost,
-		developmentSubdomain,
+		developmentHost,
 	} = await inquirer.prompt( [
 		{
 			type: 'confirm',
@@ -186,11 +186,11 @@ After the first run the token gets stored in your system's keychain and will be 
 		},
 		{
 			type: 'input',
-			name: 'developmentSubdomain',
+			name: 'developmentHost',
 			default: ( answers ) => answers.projectHost.split( '.' )[ 0 ],
-			message: 'Enter the subdomain for development (example.required.test):',
-			validate: validateAlphanumericDash,
-			filter: ( value ) => value.replace( '.required.test', '' ),
+			message: 'Enter the hostname for development (example.required.test):',
+			validate: validateHostname,
+			filter: ( value ) => value.replace( '.required.test', '' ).concat( '.required.test' ),
 		},
 	] );
 
@@ -202,17 +202,22 @@ After the first run the token gets stored in your system's keychain and will be 
 		when: isMultisite,
 	} );
 
+	let stagingHostAliasesCount = 0;
+	const productionHostAliasesArray = productionHostAliases.split( ',' );
 	const stagingHostAliases = await recursiveInquirer( {
 		type: 'input',
 		name: 'stagingHostAliases',
+		default: () => 'staging.' + productionHostAliasesArray[ stagingHostAliasesCount++ ],
 		message: 'Enter the staging hostname alias (staging.example.ch):',
 		validate: validateHostname,
 		when: isMultisite,
 	} );
 
+	let developmentHostAliasesCount = 0;
 	const developmentHostAliases = await recursiveInquirer( {
 		type: 'input',
 		name: 'developmentHostAliases',
+		default: () => productionHostAliasesArray[ developmentHostAliasesCount++ ].split( '.' )[ 0 ] + '.required.test',
 		message: 'Enter the development hostname alias (example-ch.required.test):',
 		validate: validateHostname,
 		filter: ( value ) => value.replace( '.required.test', '' ).concat( '.required.test' ),
@@ -323,10 +328,10 @@ ADMIN_COOKIE_PATH="/wp-admin"
 				to: [
 					'PROJECT_SERVER_ALIAS=' + developmentHostAliases,
 					'PROJECT_IS_MULTISITE=true',
-					'MIGRATE_PRODUCTION_FIND=' + productionHostAliases,
-					'MIGRATE_PRODUCTION_REPLACE=' + developmentHostAliases,
-					'MIGRATE_STAGING_FIND=' + stagingHostAliases,
-					'MIGRATE_STAGING_REPLACE=' + developmentHostAliases,
+					'MIGRATE_PRODUCTION_FIND=' + `${projectHost},${productionHostAliases}`,
+					'MIGRATE_PRODUCTION_REPLACE=' + `${developmentHost},${developmentHostAliases}`,
+					'MIGRATE_STAGING_FIND=' + `${stagingHost},${stagingHostAliases}`,
+					'MIGRATE_STAGING_REPLACE=' + `${developmentHost},${developmentHostAliases}`,
 				],
 			};
 			await replace( multisiteReplacementOptions );
@@ -388,7 +393,7 @@ ADMIN_COOKIE_PATH="/wp-admin"
 			to: [
 				projectName,
 				projectDescription,
-				developmentSubdomain + '.required.test',
+				developmentHost,
 				stagingHost,
 				projectHost,
 				'${COMPOSE_PROJECT_NAME}.' + projectHost.split( '.' ).pop(),
