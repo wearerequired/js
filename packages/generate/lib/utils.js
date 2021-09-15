@@ -1,6 +1,7 @@
 const { promisify } = require( 'util' );
 const exec = promisify( require( 'child_process' ).exec );
 const ora = require( 'ora' );
+const inquirer = require( 'inquirer' );
 const { log, format } = require( './logger' );
 
 const sleep = ( time ) => new Promise( ( resolve ) => setTimeout( resolve, time ) );
@@ -29,8 +30,28 @@ async function runShellCommand( command, cwd ) {
 	} );
 }
 
+async function recursiveInquirer( question, output = [] ) {
+	const questions = [
+		question,
+		{
+			type: 'confirm',
+			name: 'askAgain',
+			message: 'Do you want to enter another?',
+			default: true,
+		},
+	];
+	await inquirer.prompt( questions ).then( async ( answers ) => {
+		output.push( answers[ question.name ] );
+		if ( answers.askAgain ) {
+			await recursiveInquirer( question, output );
+		}
+	} );
+	return output.join(',');
+}
+
 module.exports = {
 	sleep,
 	runStep,
 	runShellCommand,
+	recursiveInquirer,
 };

@@ -51,17 +51,6 @@ const validateHostname = async ( input ) => {
 	return true;
 };
 
-const validateCommaListHostname = async ( input ) => {
-	const hostnames = input.split( ',' );
-	for ( let i = 0; i < hostnames.length; i++ ) {
-		if ( ! isValidHostname( hostnames[ i ] ) ) {
-			return 'Invalid hostname.';
-		}
-	}
-
-	return true;
-};
-
 module.exports = {
 	validateSlug,
 	validatePHPNamespace,
@@ -70,5 +59,4 @@ module.exports = {
 	validateAlphanumericUnderscore,
 	validateNotEmpty,
 	validateHostname,
-	validateCommaListHostname,
 };
