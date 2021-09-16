@@ -31,12 +31,10 @@ body.bar .foo {
 	background: rgba( --var( --color-secondary-rgb ), .5 );
 }
 
-@media only screen and ( min-width: 480px ) {
-
-body {
+@media only screen and ( min-width: 480px ) {body {
 		padding: 10px
 }
-	}
+}
 
 @media only screen and ( min-width: 768px ) {
 
@@ -47,18 +45,18 @@ body {
 .post-wrap.featured .nested {
 			margin-bottom: 1.25em
 	}
-	}
+}
 
 @media only screen and ( min-width: 789px ) {
 
 body.bar .foo {
 			color: #000
 	}
-		}
+}
 
 @media only screen and ( min-width: 1000px ) {
 
 .foo .bar {
 			color: #000
 	}
-		}
+}
