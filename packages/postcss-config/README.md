@@ -30,9 +30,7 @@ module.exports = require( '@wearerequired/postcss-config' );
   Plugin to unwrap nested rules like how Sass does it.
 * [postcss-preset-env](https://github.com/csstools/postcss-preset-env)  
   Convert modern CSS into something most browsers can understand, determining the polyfills based on targeted browsers.
-* [postcss-hexrgba](https://github.com/seaneking/postcss-hexrgba)  
-  Plugin that adds shorthand hex methods to `rgba()` values.
-* [css-mqpacker](https://github.com/hail2u/node-css-mqpacker)  
-  Plugin for packing same CSS media query rules into one.
+* [postcss-sort-media-queries](https://github.com/solversgroup/postcss-sort-media-queries)  
+  Plugin to combine and sort CSS media queries with mobile first or desktop first methods.
 * [cssnano](https://github.com/cssnano/cssnano)  
   A modern, modular compression tool. Only used for production builds.
