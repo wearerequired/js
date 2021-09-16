@@ -17,7 +17,7 @@ const {
 	validateNotEmpty,
 	validateHostname,
 } = require( '../validation' );
-const { runStep } = require( '../utils' );
+const { runStep, recursiveInquirer } = require( '../utils' );
 const github = require( '../github' );
 const config = require( '../config' );
 const { name: packageName } = require( '../../package.json' );
@@ -78,13 +78,6 @@ After the first run the token gets stored in your system's keychain and will be 
 		projectDescription,
 		projectSlug,
 		githubSlug,
-		projectHost,
-		stagingHost,
-		developmentSubdomain,
-		hostingHostname,
-		hostingUsername,
-		hostingPath,
-		tablePrefix,
 	} = await inquirer.prompt( [
 		{
 			type: 'password',
@@ -111,70 +104,17 @@ After the first run the token gets stored in your system's keychain and will be 
 			type: 'input',
 			name: 'projectSlug',
 			default: ( answers ) => paramCase( answers.projectName ),
-			message: 'Enter the slug of the project:',
+			message: 'Enter the project slug:',
 			validate: validateSlug,
 		},
 		{
 			type: 'input',
 			name: 'githubSlug',
 			default: ( answers ) => answers.projectSlug,
-			message: 'Enter the slug of the GitHub repo:',
+			message: 'Enter the slug for the GitHub repo:',
 			validate: validateSlug,
 		},
-		{
-			type: 'input',
-			name: 'projectHost',
-			default: ( answers ) => `${ answers.projectSlug }.ch`,
-			message: 'Enter the hostname of production (example.com):',
-			validate: validateHostname,
-		},
-		{
-			type: 'input',
-			name: 'stagingHost',
-			default: ( answers ) => 'staging.' + answers.projectHost,
-			message: 'Enter the hostname of staging (staging.example.com):',
-			validate: validateHostname,
-		},
-		{
-			type: 'input',
-			name: 'developmentSubdomain',
-			default: ( answers ) => answers.projectHost.split( '.' )[ 0 ],
-			message: 'Enter the subdomain for development (example.required.test):',
-			validate: validateAlphanumericDash,
-			filter: ( value ) => value.replace( '.required.test', '' ),
-		},
-		{
-			type: 'input',
-			name: 'hostingHostname',
-			default: '',
-			message: 'Enter the hostname for the hosting server (s059.cyon.net):',
-			validate: validateHostname,
-		},
-		{
-			type: 'input',
-			name: 'hostingUsername',
-			default: '',
-			message: 'Enter the SSH username for the hosting server (required):',
-			validate: validateAlphanumericDash,
-		},
-		{
-			type: 'input',
-			name: 'hostingPath',
-			default: '',
-			message: 'Enter the path on the hosting server (/home/required/www/):',
-			validate: validatePath,
-		},
-		{
-			type: 'input',
-			name: 'tablePrefix',
-			default: ( answers ) => `${ answers.projectSlug.replace( /-/g, '_' ) }_`,
-			message: 'Enter the WordPress database table prefix (project_):',
-			validate: validateAlphanumericUnderscore,
-		},
-		// TODO: Add option to create a multisite network. PROJECT_SERVER_ALIAS and PROJECT_IS_MULTISITE in .env.lokal. WP_ALLOW_MULTISITE etc in .env
 	] );
-
-	log();
 
 	// Add token to the keychain.
 	if ( storedGithubToken !== githubToken ) {
@@ -218,6 +158,110 @@ After the first run the token gets stored in your system's keychain and will be 
 		process.exit();
 	}
 
+	const {
+		isMultisite,
+		projectHost,
+		stagingHost,
+		developmentHost,
+	} = await inquirer.prompt( [
+		{
+			type: 'confirm',
+			name: 'isMultisite',
+			message: 'Is the project a multisite?',
+			default: false,
+		},
+		{
+			type: 'input',
+			name: 'projectHost',
+			default: `${ projectSlug }.ch`,
+			message: 'Enter the hostname of production (example.com):',
+			validate: validateHostname,
+		},
+		{
+			type: 'input',
+			name: 'stagingHost',
+			default: ( answers ) => `staging.${ answers.projectHost }`,
+			message: 'Enter the hostname of staging (staging.example.com):',
+			validate: validateHostname,
+		},
+		{
+			type: 'input',
+			name: 'developmentHost',
+			default: ( answers ) => `${ answers.projectHost.split( '.' )[ 0 ] }.required.test`,
+			message: 'Enter the hostname for development (example.required.test):',
+			validate: validateHostname,
+			filter: ( value ) => value.replace( '.required.test', '' ).concat( '.required.test' ),
+		},
+	] );
+
+	const productionHostAliases = await recursiveInquirer( {
+		type: 'input',
+		name: 'productionHostAliases',
+		message: 'Enter the production hostname alias (example.ch):',
+		validate: validateHostname,
+		when: isMultisite,
+	} );
+
+	let stagingHostAliasesCount = 0;
+	const productionHostAliasesArray = productionHostAliases.split( ',' );
+	const stagingHostAliases = await recursiveInquirer( {
+		type: 'input',
+		name: 'stagingHostAliases',
+		default: () => 'staging.' + productionHostAliasesArray[ stagingHostAliasesCount++ ],
+		message: 'Enter the staging hostname alias (staging.example.ch):',
+		validate: validateHostname,
+		when: isMultisite,
+	} );
+
+	let developmentHostAliasesCount = 0;
+	const developmentHostAliases = await recursiveInquirer( {
+		type: 'input',
+		name: 'developmentHostAliases',
+		default: () => productionHostAliasesArray[ developmentHostAliasesCount++ ].split( '.' )[ 0 ] + '.required.test',
+		message: 'Enter the development hostname alias (example-ch.required.test):',
+		validate: validateHostname,
+		filter: ( value ) => value.replace( '.required.test', '' ).concat( '.required.test' ),
+		when: isMultisite,
+	} );
+
+	const {
+		hostingHostname,
+		hostingUsername,
+		hostingPath,
+		tablePrefix,
+	} = await inquirer.prompt( [
+		{
+			type: 'input',
+			name: 'hostingHostname',
+			default: '',
+			message: 'Enter the hostname for the hosting server (s059.cyon.net):',
+			validate: validateHostname,
+		},
+		{
+			type: 'input',
+			name: 'hostingUsername',
+			default: '',
+			message: 'Enter the SSH username for the hosting server (required):',
+			validate: validateAlphanumericDash,
+		},
+		{
+			type: 'input',
+			name: 'hostingPath',
+			default: ( answers ) => `/home/${ answers.hostingUsername }/www/`,
+			message: 'Enter the path on the hosting server (/home/required/www/):',
+			validate: validatePath,
+		},
+		{
+			type: 'input',
+			name: 'tablePrefix',
+			default: `${ projectSlug.replace( /-/g, '_' ) }_`,
+			message: 'Enter the WordPress database table prefix (project_):',
+			validate: validateAlphanumericUnderscore,
+		},
+	] );
+
+	log();
+
 	// Create the repository.
 	let githubRepo;
 	await runStep( 'Creating repository using template', 'Could not create repo.', async () => {
@@ -227,7 +271,7 @@ After the first run the token gets stored in your system's keychain and will be 
 			templateName,
 			owner: githubOrganization,
 			name: githubSlug,
-			private: true,
+			isPrivate: true,
 			description: projectDescription,
 		} );
 	} );
@@ -249,30 +293,56 @@ After the first run the token gets stored in your system's keychain and will be 
 		const generateRandomKeySalt = () =>
 			cryptoRandomString( { length: 64, characters: CHARACTERS } );
 
-		const replacementOptions = {
+		if ( isMultisite ) {
+			const multisiteConfig = `
+## MULTISITE
+WP_ALLOW_MULTISITE=true
+MULTISITE=true
+SUBDOMAIN_INSTALL=true
+DOMAIN_CURRENT_SITE=project-name.required.test
+PATH_CURRENT_SITE="/"
+SITE_ID_CURRENT_SITE=1
+BLOG_ID_CURRENT_SITE=1
+NOBLOGREDIRECT=https://project-name.required.test
+
+## COOKIE
+COOKIE_DOMAIN=""
+COOKIEPATH="/"
+SITECOOKIEPATH="/"
+ADMIN_COOKIE_PATH="/wp-admin"
+`;
+			fs.appendFile( projectDir + '/.local-server/.env', multisiteConfig );
+
+			const multisiteReplacementOptions = {
+				files: [
+					projectDir + '/.env.lokal',
+				],
+				from: [
+					/#PROJECT_SERVER_ALIAS=/,
+					/#PROJECT_IS_MULTISITE=true/,
+					/#MIGRATE_PRODUCTION_FIND=/,
+					/#MIGRATE_PRODUCTION_REPLACE=/,
+					/#MIGRATE_STAGING_FIND=/,
+					/#MIGRATE_STAGING_REPLACE=/,
+				],
+				to: [
+					`PROJECT_SERVER_ALIAS=${ developmentHostAliases }`,
+					'PROJECT_IS_MULTISITE=true',
+					`MIGRATE_PRODUCTION_FIND=${ projectHost },${ productionHostAliases }`,
+					`MIGRATE_PRODUCTION_REPLACE=${ developmentHost },${ developmentHostAliases }`,
+					`MIGRATE_STAGING_FIND=${ stagingHost },${ stagingHostAliases }`,
+					`MIGRATE_STAGING_REPLACE=${ developmentHost },${ developmentHostAliases }`,
+				],
+			};
+			await replace( multisiteReplacementOptions );
+		}
+
+		const envReplacementOptions = {
 			files: [
-				projectDir + '/.env.lokal',
-				projectDir + '/README.md',
-				projectDir + '/composer.json',
-				projectDir + '/phpcs.xml.dist',
-				projectDir + '/deploy.yml',
-				projectDir + '/wp-cli.yml',
 				projectDir + '/.local-server/.env',
-				projectDir + '/.local-server/.htaccess',
 			],
 			from: [
-				/Project Name/g,
-				/Project description\./g,
-				/wordpress-project-boilerplate/g,
-				/project-name\.required\.test/g,
-				/staging.project-name\.ch/g,
-				/project-name\.ch/g,
-				/\${COMPOSE_PROJECT_NAME}\.ch/g,
-				/hosting-username/g,
-				/hostname\.ch/g,
-				/\/home\/required\/www\//g,
 				/wp_table_prefix_/g,
-				/project-name/g,
 				/\[\[AUTH_KEY\]\]/g,
 				/\[\[SECURE_AUTH_KEY\]\]/g,
 				/\[\[LOGGED_IN_KEY\]\]/g,
@@ -283,26 +353,54 @@ After the first run the token gets stored in your system's keychain and will be 
 				/\[\[NONCE_SALT\]\]/g,
 			],
 			to: [
+				tablePrefix,
+				generateRandomKeySalt(),
+				generateRandomKeySalt(),
+				generateRandomKeySalt(),
+				generateRandomKeySalt(),
+				generateRandomKeySalt(),
+				generateRandomKeySalt(),
+				generateRandomKeySalt(),
+				generateRandomKeySalt(),
+			],
+		};
+		await replace( envReplacementOptions );
+
+		const replacementOptions = {
+			files: [
+				projectDir + '/.env.lokal',
+				projectDir + '/README.md',
+				projectDir + '/composer.json',
+				projectDir + '/phpcs.xml.dist',
+				projectDir + '/deploy.yml',
+				projectDir + '/wp-cli.yml',
+				projectDir + '/.local-server/.env',
+				projectDir + '/.local-server/.htaccess',
+				projectDir + '/.local-server/.env',
+			],
+			from: [
+				/Project Name/g, // phpcs.xml.dist & Readme.md
+				/Project description\./g, // composer.json
+				/project-name\.required\.test/g, // .local-server/.env, Readme.md
+				/staging\.project-name\.ch/g, // .local-server/.env, .local-server/.htaccess, Readme.md
+				/project-name\.ch/g, // .local-server/.env, .local-server/.htaccess, Readme.md
+				/\${COMPOSE_PROJECT_NAME}\.ch/g, //.env.lokal
+				/hosting-username/g, // deploy.yml & Readme.md
+				/hostname\.ch/g, // .local-server/.env, .local-server/.htaccess, Readme.md, wp-cli.yml
+				/\/home\/required\/www\//g, // wp-cli.yml
+				/project-name/g, // .local-server/.env, .local-server/.htaccess, Readme.md, wp-cli.yml, deploy.yml, composer.json, .env.lokal
+			],
+			to: [
 				projectName,
 				projectDescription,
-				githubSlug,
-				developmentSubdomain + '.required.test',
+				developmentHost,
 				stagingHost,
 				projectHost,
 				'${COMPOSE_PROJECT_NAME}.' + projectHost.split( '.' ).pop(),
 				hostingUsername,
 				hostingHostname,
 				hostingPath,
-				tablePrefix,
 				projectSlug,
-				generateRandomKeySalt(),
-				generateRandomKeySalt(),
-				generateRandomKeySalt(),
-				generateRandomKeySalt(),
-				generateRandomKeySalt(),
-				generateRandomKeySalt(),
-				generateRandomKeySalt(),
-				generateRandomKeySalt(),
 			],
 		};
 
