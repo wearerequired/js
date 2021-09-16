@@ -180,14 +180,14 @@ After the first run the token gets stored in your system's keychain and will be 
 		{
 			type: 'input',
 			name: 'stagingHost',
-			default: ( answers ) => 'staging.' + answers.projectHost,
+			default: ( answers ) => `staging.${ answers.projectHost }`,
 			message: 'Enter the hostname of staging (staging.example.com):',
 			validate: validateHostname,
 		},
 		{
 			type: 'input',
 			name: 'developmentHost',
-			default: ( answers ) => answers.projectHost.split( '.' )[ 0 ],
+			default: ( answers ) => `${ answers.projectHost.split( '.' )[ 0 ] }.required.test`,
 			message: 'Enter the hostname for development (example.required.test):',
 			validate: validateHostname,
 			filter: ( value ) => value.replace( '.required.test', '' ).concat( '.required.test' ),
@@ -247,7 +247,7 @@ After the first run the token gets stored in your system's keychain and will be 
 		{
 			type: 'input',
 			name: 'hostingPath',
-			default: '',
+			default: ( answers ) => `/home/${ answers.hostingUsername }/www/`,
 			message: 'Enter the path on the hosting server (/home/required/www/):',
 			validate: validatePath,
 		},
@@ -326,12 +326,12 @@ ADMIN_COOKIE_PATH="/wp-admin"
 					/#MIGRATE_STAGING_REPLACE=/,
 				],
 				to: [
-					'PROJECT_SERVER_ALIAS=' + developmentHostAliases,
+					`PROJECT_SERVER_ALIAS=${ developmentHostAliases }`,
 					'PROJECT_IS_MULTISITE=true',
-					'MIGRATE_PRODUCTION_FIND=' + `${projectHost},${productionHostAliases}`,
-					'MIGRATE_PRODUCTION_REPLACE=' + `${developmentHost},${developmentHostAliases}`,
-					'MIGRATE_STAGING_FIND=' + `${stagingHost},${stagingHostAliases}`,
-					'MIGRATE_STAGING_REPLACE=' + `${developmentHost},${developmentHostAliases}`,
+					`MIGRATE_PRODUCTION_FIND=${ projectHost },${ productionHostAliases }`,
+					`MIGRATE_PRODUCTION_REPLACE=${ developmentHost },${ developmentHostAliases }`,
+					`MIGRATE_STAGING_FIND=${ stagingHost },${ stagingHostAliases }`,
+					`MIGRATE_STAGING_REPLACE=${ developmentHost },${ developmentHostAliases }`,
 				],
 			};
 			await replace( multisiteReplacementOptions );
