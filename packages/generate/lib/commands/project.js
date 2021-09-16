@@ -271,7 +271,7 @@ After the first run the token gets stored in your system's keychain and will be 
 			templateName,
 			owner: githubOrganization,
 			name: githubSlug,
-			private: true,
+			isPrivate: true,
 			description: projectDescription,
 		} );
 	} );
