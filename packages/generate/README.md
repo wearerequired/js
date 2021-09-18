@@ -1,6 +1,6 @@
 # @wearerequired/generate
 
-CLI tool to generate a WordPress plugin or theme repo based off the boilerplates.
+CLI tool to generate a WordPress plugin, theme or project repo based off the boilerplates.
 
 ## wordpress-plugin
 
