@@ -25,7 +25,7 @@
   "homepage": "https://github.com/wearerequired/js/tree/master/packages/repo-management#readme",
   "dependencies": {
     "@octokit/rest": "^18.0.6",
-    "colorette": "^1.2.1",
+    "colorette": "^2.0.2",
     "commander": "^6.1.0",
     "conf": "^10.0.1",
     "inquirer": "^8.0.0",
