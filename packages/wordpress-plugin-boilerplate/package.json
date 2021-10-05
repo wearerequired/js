@@ -23,7 +23,7 @@
   "dependencies": {
     "@octokit/rest": "^18.0.3",
     "change-case": "^4.1.1",
-    "colorette": "^1.2.1",
+    "colorette": "^2.0.14",
     "commander": "^6.0.0",
     "inquirer": "^8.0.0",
     "keytar": "^7.0.0",
