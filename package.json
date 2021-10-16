@@ -17,5 +17,16 @@
     "publish:check": "lerna updated",
     "publish:dev": "lerna publish --dist-tag next",
     "publish:prod": "lerna publish"
-  }
+  },
+  "eslintConfig": {
+    "extends": [
+      "@wearerequired/eslint-config"
+    ],
+    "rules": {
+      "@wordpress/no-global-event-listener": "off"
+    }
+  },
+  "browserslist": [
+    "extends @wearerequired/browserslist-config/modern"
+  ]
 }
