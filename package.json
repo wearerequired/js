@@ -8,12 +8,14 @@
   },
   "devDependencies": {
     "@wearerequired/browserslist-config": "file:packages/browserslist-config",
-    "@wearerequired/eslint-config": "^2.1.0",
-    "@wordpress/eslint-plugin": "^9.0.5",
-    "eslint": "^7.13.0",
+    "@wearerequired/eslint-config": "^2.2.0",
+    "@wordpress/eslint-plugin": "^9.2.0",
+    "eslint": "^7.32.0",
     "lerna": "^4.0.0"
   },
   "scripts": {
+    "lint-js": "eslint .",
+    "lint-js:fix": "eslint . --fix",
     "publish:check": "lerna updated",
     "publish:dev": "lerna publish --dist-tag next",
     "publish:prod": "lerna publish"

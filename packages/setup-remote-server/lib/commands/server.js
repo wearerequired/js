@@ -1,15 +1,15 @@
 'use strict';
 
 const fs = require( 'fs' );
-const md5 = require('apache-md5');
-const untildify = require('untildify');
-const path = require('path');
-const dotenv = require('dotenv')
+const md5 = require( 'apache-md5' );
+const untildify = require( 'untildify' );
+const path = require( 'path' );
+const dotenv = require( 'dotenv' );
 const inquirer = require( 'inquirer' );
 const replace = require( 'replace-in-file' );
-const { Resolver } = require('dns').promises;
-const { NodeSSH } = require('node-ssh');
-const YAML = require('yaml');
+const { Resolver } = require( 'dns' ).promises;
+const { NodeSSH } = require( 'node-ssh' );
+const YAML = require( 'yaml' );
 const { log, format } = require( '../logger' );
 const {
 	validateSlug,
@@ -24,14 +24,12 @@ const { name: packageName } = require( '../../package.json' );
 const WORKING_DIR = process.cwd();
 
 async function server( command ) {
-
 	if ( ! command.skipIntro && ! config.get( 'skipIntros' ) ) {
 		const intro = `${ format.title( `👋  Welcome to ${ packageName }` ) }
 
-This tool will guide you through the setup process of a new ${ format.comment(
-			'remote server'
-		) }.
+This tool will guide you through the setup process of a new ${ format.comment( 'remote server' ) }.
 `;
+		log( intro );
 
 		const { isReady } = await inquirer.prompt( [
 			{
@@ -65,7 +63,11 @@ This tool will guide you through the setup process of a new ${ format.comment(
 	}
 
 	if ( dotLocalServerExists ) {
-		log( format.error( 'This direcotry does not seem to be a project. Please run the command within a project directory.' ) );
+		log(
+			format.error(
+				'This direcotry does not seem to be a project. Please run the command within a project directory.'
+			)
+		);
 		process.exit();
 	}
 
@@ -74,7 +76,7 @@ This tool will guide you through the setup process of a new ${ format.comment(
 	try {
 		await fs.existsSync( deployYML );
 		deployYMLExists = true;
-	} catch( err ) {
+	} catch ( err ) {
 		deployYMLExists = false;
 	}
 
@@ -87,7 +89,7 @@ This tool will guide you through the setup process of a new ${ format.comment(
 	try {
 		const deployYMLContents = await fs.readFileSync( deployYML, 'utf8' );
 		deployYMLData = YAML.parse( deployYMLContents );
-	} catch (error) {
+	} catch ( error ) {
 		console.log( error );
 	}
 
@@ -96,9 +98,7 @@ This tool will guide you through the setup process of a new ${ format.comment(
 		process.exit();
 	}
 
-	const {
-		remoteEnvoirnment,
-	} = await inquirer.prompt( [
+	const { remoteEnvoirnment } = await inquirer.prompt( [
 		{
 			type: 'list',
 			name: 'remoteEnvoirnment',
@@ -115,7 +115,7 @@ This tool will guide you through the setup process of a new ${ format.comment(
 						break;
 				}
 				return value;
-			}
+			},
 		},
 	] );
 
@@ -124,24 +124,20 @@ This tool will guide you through the setup process of a new ${ format.comment(
 		process.exit();
 	}
 
-	const envoirnment = deployYMLData[ remoteEnvoirnment ].stage ;
+	const envoirnment = deployYMLData[ remoteEnvoirnment ].stage;
 
-	const {
-		hostName,
-		hostUser,
-		privateKey,
-	} = await inquirer.prompt( [
+	const { hostName, hostUser, privateKey } = await inquirer.prompt( [
 		{
 			type: 'input',
 			name: 'hostName',
-			default: deployYMLData['.base'].hostname,
+			default: deployYMLData[ '.base' ].hostname,
 			message: 'Enter the hostname for the remote server:',
 			validate: validateHostname,
 		},
 		{
 			type: 'input',
 			name: 'hostUser',
-			default: deployYMLData['.base'].user,
+			default: deployYMLData[ '.base' ].user,
 			message: 'Enter the host username:',
 			validate: validateSlug,
 		},
@@ -154,16 +150,18 @@ This tool will guide you through the setup process of a new ${ format.comment(
 		},
 	] );
 
-	const remoteDir = `/home/${hostUser}/${deployYMLData['.base'].application}/${envoirnment}`;
+	const remoteDir = `/home/${ hostUser }/${ deployYMLData[ '.base' ].application }/${ envoirnment }`;
 	const ssh = new NodeSSH();
 
-	await ssh.connect({
-		host: hostName,
-		username: hostUser,
-		privateKey: untildify( privateKey ),
-	}).then(() => {
-		log( format.success( 'Successful connection to remote server!' ) );
-	});
+	await ssh
+		.connect( {
+			host: hostName,
+			username: hostUser,
+			privateKey: untildify( privateKey ),
+		} )
+		.then( () => {
+			log( format.success( 'Successful connection to remote server!' ) );
+		} );
 
 	// process.exit();
 
@@ -176,12 +174,7 @@ This tool will guide you through the setup process of a new ${ format.comment(
 		default: false,
 	} );
 
-	const {
-		dbHost,
-		dbNmae,
-		dbUser,
-		dbPassword,
-	} = await inquirer.prompt( [
+	const { dbHost, dbNmae, dbUser, dbPassword } = await inquirer.prompt( [
 		{
 			type: 'input',
 			name: 'dbHost',
@@ -209,20 +202,18 @@ This tool will guide you through the setup process of a new ${ format.comment(
 		},
 	] );
 
-	const tempEnvFile = `.local-server/.env.${envoirnment}`;
+	const tempEnvFile = `.local-server/.env.${ envoirnment }`;
 	try {
-		fs.copyFileSync('.local-server/.env', tempEnvFile );
-		log( format.success( `local-server/.env was copied to ${tempEnvFile}` ) );
-	} catch (error) {
+		fs.copyFileSync( '.local-server/.env', tempEnvFile );
+		log( format.success( `local-server/.env was copied to ${ tempEnvFile }` ) );
+	} catch ( error ) {
 		console.log( error );
 	}
 
 	// Rename files in local checkout.
 	await runStep( 'Renaming project files', 'Could not rename files.', async () => {
 		const envReplacementOptions = {
-			files: [
-				`${WORKING_DIR}/${tempEnvFile}`,
-			],
+			files: [ `${ WORKING_DIR }/${ tempEnvFile }` ],
 			from: [
 				/WP_ENV=development/g,
 				/_HTTP_HOST=/g,
@@ -234,12 +225,12 @@ This tool will guide you through the setup process of a new ${ format.comment(
 				/SCRIPT_DEBUG=true/g,
 			],
 			to: [
-				`WP_ENV=${envoirnment}`,
+				`WP_ENV=${ envoirnment }`,
 				`_HTTP_HOST=`,
-				`DB_HOST=${dbHost}`,
-				`DB_NAME=${dbNmae}`,
-				`DB_USER=${dbUser}`,
-				`DB_PASSWORD=${dbPassword}`,
+				`DB_HOST=${ dbHost }`,
+				`DB_NAME=${ dbNmae }`,
+				`DB_USER=${ dbUser }`,
+				`DB_PASSWORD=${ dbPassword }`,
 				'WP_DEBUG_DISPLAY=false',
 				'SCRIPT_DEBUG=false',
 			],
@@ -248,24 +239,16 @@ This tool will guide you through the setup process of a new ${ format.comment(
 
 		if ( envoirnment === 'staging' ) {
 			const stagingEnvReplacementOptions = {
-				files: [
-					`${WORKING_DIR}/${tempEnvFile}`,
-				],
-				from: [
-					/JETPACK_DEV_DEBUG=true/g,
-				],
-				to: [
-					'JETPACK_STAGING_MODE=true',
-				],
+				files: [ `${ WORKING_DIR }/${ tempEnvFile }` ],
+				from: [ /JETPACK_DEV_DEBUG=true/g ],
+				to: [ 'JETPACK_STAGING_MODE=true' ],
 			};
 			await replace( stagingEnvReplacementOptions );
 		}
 
 		if ( envoirnment === 'production' ) {
 			const prodEnvReplacementOptions = {
-				files: [
-					`${WORKING_DIR}/${tempEnvFile}`,
-				],
+				files: [ `${ WORKING_DIR }/${ tempEnvFile }` ],
 				from: [
 					/WP_DEBUG=true/g,
 					/WP_DEBUG_LOG=true/g,
@@ -287,16 +270,16 @@ This tool will guide you through the setup process of a new ${ format.comment(
 
 	let htaccessContents;
 	try {
-		htaccessContents = fs.readFileSync( path.resolve( __dirname, '../../assets/.htaccess' ), 'utf8' );
-	} catch (error) {
+		htaccessContents = fs.readFileSync(
+			path.resolve( __dirname, '../../assets/.htaccess' ),
+			'utf8'
+		);
+	} catch ( error ) {
 		console.log( error );
 	}
 
 	if ( envoirnment !== 'production' ) {
-		const {
-			basicAuthUser,
-			basicAuthPassword,
-		} = await inquirer.prompt( [
+		const { basicAuthUser, basicAuthPassword } = await inquirer.prompt( [
 			{
 				type: 'input',
 				name: 'basicAuthUser',
@@ -311,101 +294,143 @@ This tool will guide you through the setup process of a new ${ format.comment(
 			},
 		] );
 
-		const htpasswd = `${basicAuthUser}:${ md5( basicAuthPassword ) }`;
+		const htpasswd = `${ basicAuthUser }:${ md5( basicAuthPassword ) }`;
 
 		try {
-			fs.writeFileSync( `${WORKING_DIR}/.local-server/.htpasswd`, htpasswd );
+			fs.writeFileSync( `${ dotLocalServer }/.htpasswd`, htpasswd );
 			log( format.success( `.htpasswd saved to /.local-server` ) );
-		} catch(err) {
-			console.error(err);
+		} catch ( err ) {
+			console.error( err );
 		}
 
 		const xRobotsTag = 'Header add X-Robots-Tag "nofollow, noindex, noarchive, nosnippet"';
 
-		let allowFrom = "# Localhost\nAllow from 127.0.0.1";
+		let allowFrom = '# Localhost\nAllow from 127.0.0.1';
 		const resolver = new Resolver();
-		await resolver.resolve4(hostName)
-			.then(addresses => {
+		await resolver
+			.resolve4( hostName )
+			.then( ( addresses ) => {
 				allowFrom += '\n# Hosting IPv4';
-				addresses.forEach(element => {
-					allowFrom += `\nAllow from ${element}`;
-				});
-			})
-			.catch(err => console.log(err));
+				addresses.forEach( ( element ) => {
+					allowFrom += `\nAllow from ${ element }`;
+				} );
+			} )
+			.catch( ( err ) => console.log( err ) );
 
-		await resolver.resolve6(hostName)
-			.then(addresses => {
+		await resolver
+			.resolve6( hostName )
+			.then( ( addresses ) => {
 				allowFrom += '\n# Hosting IPv6';
-				addresses.forEach(element => {
-					allowFrom += `\nAllow from ${element}`;
-				});
-			})
-			.catch(err => console.log(err));
+				addresses.forEach( ( element ) => {
+					allowFrom += `\nAllow from ${ element }`;
+				} );
+			} )
+			.catch( ( err ) => console.log( err ) );
 
 		const basicAuth = `
 AuthType Basic
-AuthName "${deployYMLData['.base'].application} ${envoirnment}"
+AuthName "${ deployYMLData[ '.base' ].application } ${ envoirnment }"
 AuthUserFile "${ remoteDir }/shared/.htpasswd"
 Require Valid-user
-${allowFrom}
+${ allowFrom }
 Order allow,deny
 Satisfy Any
 `;
 
-		const dotenvConfig = dotenv.parse( fs.readFileSync( `${WORKING_DIR}/.local-server/.env` ) );
+		const dotenvConfig = dotenv.parse( fs.readFileSync( `${ dotLocalServer }/.env` ) );
 
 		const mediaRedirect = `  # Load media files from production server if they don't exist on staging.
   RewriteCond %{REQUEST_FILENAME} !-f
-  RewriteRule ^(content/uploads/.*) ${dotenvConfig.URL_STAGING}/$1 [L]
+  RewriteRule ^(content/uploads/.*) ${ dotenvConfig.URL_STAGING }/$1 [L]
 
   RewriteRule ^index\.php$ - [L]`;
 
 		htaccessContents = xRobotsTag + '\n' + basicAuth + '\n' + htaccessContents;
-		htaccessContents = htaccessContents.replace( '  RewriteRule \^index\\.php\$ - \[L]', mediaRedirect );
+		htaccessContents = htaccessContents.replace(
+			'  RewriteRule ^index\\.php$ - [L]',
+			mediaRedirect
+		);
 	}
 
 	try {
-		fs.writeFileSync( `${WORKING_DIR}/.local-server/.htaccess.${envoirnment}`, htaccessContents );
-		log( format.success( `.htaccess.${envoirnment} saved to /.local-server` ) );
-	} catch(err) {
-		console.error(err);
+		fs.writeFileSync( `${ dotLocalServer }/.htaccess.${ envoirnment }`, htaccessContents );
+		log( format.success( `.htaccess.${ envoirnment } saved to /.local-server` ) );
+	} catch ( err ) {
+		console.error( err );
 	}
 
 	// process.exit();
 
 	// Sync files to remote server.
-	await ssh.connect({
-		host: hostName,
-		username: hostUser,
-		privateKey: untildify( privateKey ),
-	}).then( async () => {
-		// Make diretorires.
-		await ssh.execCommand( `mkdir -p ${remoteDir}/shared/wordpress/content/uploads`, { cwd: 'public_html' }).then((result) => {
-			console.log('STDOUT: ' + result.stdout);
-			console.log('STDERR: ' + result.stderr);
-		});
-		// .env file.
-		await ssh.putFile( `${WORKING_DIR}/${envStaging}`, `${remoteDir}/shared/wordpress/.env`).then(function() {
-			console.log("The File thing is done")
-		}, function(error) {
-			console.log("Something's wrong")
-			console.log(error)
-		});
-		// .htaccess & .htpasswd.
-	});
+	await ssh
+		.connect( {
+			host: hostName,
+			username: hostUser,
+			privateKey: untildify( privateKey ),
+		} )
+		.then( async () => {
+			// Make diretorires.
+			await ssh
+				.execCommand( `mkdir -p ${ remoteDir }/shared/wordpress/content/uploads`, {
+					cwd: 'public_html',
+				} )
+				.then( ( result ) => {
+					console.log( 'STDOUT: ' + result.stdout );
+					console.log( 'STDERR: ' + result.stderr );
+				} );
+			// .env file.
+			await ssh
+				.putFile(
+					`${ dotLocalServer }/.env.${ envoirnment }`,
+					`${ remoteDir }/shared/wordpress/.env`
+				)
+				.then(
+					function () {
+						console.log( 'The File thing is done' );
+					},
+					function ( error ) {
+						console.log( error );
+					}
+				);
+			// .htaccess.
+			await ssh
+				.putFile(
+					`${ dotLocalServer }/.htaccess.${ envoirnment }`,
+					`${ remoteDir }/shared/wordpress/.htaccess`
+				)
+				.then(
+					function () {
+						console.log( 'The File thing is done' );
+					},
+					function ( error ) {
+						console.log( error );
+					}
+				);
+			// .htpasswd.
+			await ssh
+				.putFile( `${ dotLocalServer }/.htpasswd`, `${ remoteDir }/shared/.htpasswd` )
+				.then(
+					function () {
+						console.log( 'The File thing is done' );
+					},
+					function ( error ) {
+						console.log( error );
+					}
+				);
+		} );
 
 	// Cleanup local files.
 	try {
-		fs.unlinkSync(envStaging)
-	} catch(err) {
-		console.error(err)
+		fs.unlinkSync( `${ dotLocalServer }/.env.${ envoirnment }` );
+		fs.unlinkSync( `${ dotLocalServer }/.htaccess.${ envoirnment }` );
+		fs.unlinkSync( `${ dotLocalServer }/.htpasswd` );
+	} catch ( err ) {
+		console.error( err );
 	}
 
 	// Add comment to run deployment.
 
 	log( format.success( '\n✅  Done!' ) );
-	// log( 'Directory: ' + projectDir );
-	// log( 'GitHub Repo: ' + githubRepo.html_url );
 }
 
 module.exports = server;

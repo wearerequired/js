@@ -17,11 +17,9 @@ async function runStep( name, abortMessage, handler ) {
 }
 
 async function recursiveConfirm( question ) {
-	const questions = [
-		question,
-	];
+	const questions = [ question ];
 	await inquirer.prompt( questions ).then( async ( answers ) => {
-		if ( ! answers[Object.keys(answers)[0]] ) {
+		if ( ! answers[ Object.keys( answers )[ 0 ] ] ) {
 			await recursiveConfirm( question );
 		}
 	} );
