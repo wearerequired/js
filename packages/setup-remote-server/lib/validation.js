@@ -8,35 +8,11 @@ const validateSlug = async ( input ) => {
 	return true;
 };
 
-const validatePHPNamespace = async ( input ) => {
-	if ( ! input || /[^A-Za-z0-9_\\]/.test( input ) ) {
-		return 'Only alphanumeric characters, backslashes and underscores are allowed.';
-	}
-
-	return true;
-};
-
 const validatePath = async ( input ) => {
 	// @link https://stackoverflow.com/a/42036026/850651
 	const regex = new RegExp( '^\/$|(^(?=\/)|^\.|^\.\.)(\/(?=[^/\0])[^/\0]+)*\/?$' );
 	if ( ! input || ! regex.test( input ) ) {
 		return 'Invalid unix path.';
-	}
-
-	return true;
-};
-
-const validateAlphanumericDash = async ( input ) => {
-	if ( ! input || /[^a-z0-9\-]/.test( input ) ) {
-		return 'Only lowercase alphanumeric characters and dashes are allowed.';
-	}
-
-	return true;
-};
-
-const validateAlphanumericUnderscore = async ( input ) => {
-	if ( ! input || /[^a-z0-9_]/.test( input ) ) {
-		return 'Only lowercase alphanumeric characters and underscores are allowed.';
 	}
 
 	return true;
@@ -54,10 +30,7 @@ const validateHostname = async ( input ) => {
 
 module.exports = {
 	validateSlug,
-	validatePHPNamespace,
 	validatePath,
-	validateAlphanumericDash,
-	validateAlphanumericUnderscore,
 	validateNotEmpty,
 	validateHostname,
 };

@@ -7,7 +7,7 @@ program.version( require( '../package.json' ).version );
 program
 	.command( 'create' )
 	.option( '--skip-intro', 'skip intro' )
-	.description( 'create a new project with GitHub repo and local checkout' )
+	.description( 'setup a new envoirnment on a remote server.' )
 	.action( server );
 
 module.exports = program;

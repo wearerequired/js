@@ -5,12 +5,8 @@ const md5 = require('apache-md5');
 const untildify = require('untildify');
 const path = require('path');
 const dotenv = require('dotenv')
-const simpleGit = require( 'simple-git/promise' );
 const inquirer = require( 'inquirer' );
-const keytar = require( 'keytar' );
 const replace = require( 'replace-in-file' );
-const { paramCase } = require( 'change-case' );
-const terminalLink = require( 'terminal-link' );
 const { Resolver } = require('dns').promises;
 const { NodeSSH } = require('node-ssh');
 const YAML = require('yaml');
@@ -18,13 +14,10 @@ const { log, format } = require( '../logger' );
 const {
 	validateSlug,
 	validatePath,
-	validateAlphanumericDash,
-	validateAlphanumericUnderscore,
 	validateNotEmpty,
 	validateHostname,
 } = require( '../validation' );
-const { runStep, recursiveConfirm, lookupPromise } = require( '../utils' );
-const github = require( '../github' );
+const { runStep, recursiveConfirm } = require( '../utils' );
 const config = require( '../config' );
 const { name: packageName } = require( '../../package.json' );
 
@@ -194,25 +187,25 @@ This tool will guide you through the setup process of a new ${ format.comment(
 			name: 'dbHost',
 			default: 'localhost',
 			message: 'Enter the database host:',
-			// validate: validateSlug,
+			validate: validateNotEmpty,
 		},
 		{
 			type: 'input',
 			name: 'dbNmae',
 			message: 'Enter the database name:',
-			// validate: validateSlug,
+			validate: validateNotEmpty,
 		},
 		{
 			type: 'input',
 			name: 'dbUser',
 			message: 'Enter the db username:',
-			// validate: validateSlug,
+			validate: validateNotEmpty,
 		},
 		{
 			type: 'input',
 			name: 'dbPassword',
 			message: 'Enter the database password:',
-			// validate: validateSlug,
+			validate: validateNotEmpty,
 		},
 	] );
 
@@ -308,13 +301,13 @@ This tool will guide you through the setup process of a new ${ format.comment(
 				type: 'input',
 				name: 'basicAuthUser',
 				message: 'Enter the BasicAuth username:',
-				// validate: validateSlug,
+				validate: validateNotEmpty,
 			},
 			{
 				type: 'input',
 				name: 'basicAuthPassword',
 				message: 'Enter the BasicAuth password:',
-				// validate: validateSlug,
+				validate: validateNotEmpty,
 			},
 		] );
 
