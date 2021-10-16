@@ -1,8 +1,7 @@
 'use strict';
 
 const fs = require( 'fs' );
-const fsPromises = require( 'fs' ).promises;
-const constants = require( 'fs' );
+const md5 = require('apache-md5');
 const untildify = require('untildify');
 const path = require('path');
 const dotenv = require('dotenv')
@@ -195,21 +194,25 @@ This tool will guide you through the setup process of a new ${ format.comment(
 			name: 'dbHost',
 			default: 'localhost',
 			message: 'Enter the database host:',
+			// validate: validateSlug,
 		},
 		{
 			type: 'input',
 			name: 'dbNmae',
 			message: 'Enter the database name:',
+			// validate: validateSlug,
 		},
 		{
 			type: 'input',
 			name: 'dbUser',
 			message: 'Enter the db username:',
+			// validate: validateSlug,
 		},
 		{
-			type: 'password',
+			type: 'input',
 			name: 'dbPassword',
 			message: 'Enter the database password:',
+			// validate: validateSlug,
 		},
 	] );
 
@@ -220,8 +223,6 @@ This tool will guide you through the setup process of a new ${ format.comment(
 	} catch (error) {
 		console.log( error );
 	}
-
-	// process.exit();
 
 	// Rename files in local checkout.
 	await runStep( 'Renaming project files', 'Could not rename files.', async () => {
@@ -291,16 +292,41 @@ This tool will guide you through the setup process of a new ${ format.comment(
 		}
 	} );
 
-	// Create .htpasswd file.
-
 	let htaccessContents;
 	try {
-		htaccessContents = await fsPromises.readFile( path.resolve( __dirname, '../../assets/.htaccess' ), 'utf8' );
+		htaccessContents = fs.readFileSync( path.resolve( __dirname, '../../assets/.htaccess' ), 'utf8' );
 	} catch (error) {
 		console.log( error );
 	}
 
-	if ( envoirnment === 'staging' ) {
+	if ( envoirnment !== 'production' ) {
+		const {
+			basicAuthUser,
+			basicAuthPassword,
+		} = await inquirer.prompt( [
+			{
+				type: 'input',
+				name: 'basicAuthUser',
+				message: 'Enter the BasicAuth username:',
+				// validate: validateSlug,
+			},
+			{
+				type: 'input',
+				name: 'basicAuthPassword',
+				message: 'Enter the BasicAuth password:',
+				// validate: validateSlug,
+			},
+		] );
+
+		const htpasswd = `${basicAuthUser}:${ md5( basicAuthPassword ) }`;
+
+		try {
+			fs.writeFileSync( `${WORKING_DIR}/.local-server/.htpasswd`, htpasswd );
+			log( format.success( `.htpasswd saved to /.local-server` ) );
+		} catch(err) {
+			console.error(err);
+		}
+
 		const xRobotsTag = 'Header add X-Robots-Tag "nofollow, noindex, noarchive, nosnippet"';
 
 		let allowFrom = "# Localhost\nAllow from 127.0.0.1";
@@ -344,11 +370,10 @@ Satisfy Any
 		htaccessContents = xRobotsTag + '\n' + basicAuth + '\n' + htaccessContents;
 		htaccessContents = htaccessContents.replace( '  RewriteRule \^index\\.php\$ - \[L]', mediaRedirect );
 	}
-	// console.log(htaccessContents);
 
 	try {
 		fs.writeFileSync( `${WORKING_DIR}/.local-server/.htaccess.${envoirnment}`, htaccessContents );
-		log( format.success( `.htaccess.${envoirnment} saved to local-server` ) );
+		log( format.success( `.htaccess.${envoirnment} saved to /.local-server` ) );
 	} catch(err) {
 		console.error(err);
 	}

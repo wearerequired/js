@@ -23,6 +23,7 @@
   "homepage": "https://github.com/wearerequired/js/tree/master/packages/setup-remote-server#readme",
   "dependencies": {
     "@octokit/rest": "^18.0.3",
+    "apache-md5": "^1.1.7",
     "change-case": "^4.1.1",
     "colorette": "^1.2.1",
     "commander": "^6.0.0",
