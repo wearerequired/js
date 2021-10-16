@@ -378,31 +378,37 @@ Satisfy Any
 		console.error(err);
 	}
 
-	process.exit();
+	// process.exit();
 
+	// Sync files to remote server.
 	await ssh.connect({
 		host: hostName,
 		username: hostUser,
 		privateKey: untildify( privateKey ),
 	}).then( async () => {
+		// Make diretorires.
 		await ssh.execCommand( `mkdir -p ${remoteDir}/shared/wordpress/content/uploads`, { cwd: 'public_html' }).then((result) => {
 			console.log('STDOUT: ' + result.stdout);
 			console.log('STDERR: ' + result.stderr);
 		});
+		// .env file.
 		await ssh.putFile( `${WORKING_DIR}/${envStaging}`, `${remoteDir}/shared/wordpress/.env`).then(function() {
 			console.log("The File thing is done")
 		}, function(error) {
 			console.log("Something's wrong")
 			console.log(error)
 		});
-		// .htaccess
+		// .htaccess & .htpasswd.
 	});
 
+	// Cleanup local files.
 	try {
 		fs.unlinkSync(envStaging)
 	} catch(err) {
 		console.error(err)
 	}
+
+	// Add comment to run deployment.
 
 	log( format.success( '\n✅  Done!' ) );
 	// log( 'Directory: ' + projectDir );
