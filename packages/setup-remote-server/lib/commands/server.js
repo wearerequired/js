@@ -1,8 +1,11 @@
 'use strict';
 
 const fs = require( 'fs' );
+const fsPromises = require( 'fs' ).promises;
+const constants = require( 'fs' );
 const untildify = require('untildify');
 const path = require('path');
+const dotenv = require('dotenv')
 const simpleGit = require( 'simple-git/promise' );
 const inquirer = require( 'inquirer' );
 const keytar = require( 'keytar' );
@@ -102,6 +105,36 @@ This tool will guide you through the setup process of a new ${ format.comment(
 	}
 
 	const {
+		remoteEnvoirnment,
+	} = await inquirer.prompt( [
+		{
+			type: 'list',
+			name: 'remoteEnvoirnment',
+			message: 'Choose the remote envoinrment',
+			choices: [ 'Staging', 'Production' ],
+			filter( value ) {
+				switch ( value ) {
+					case 'Production':
+						value = 'prod';
+						break;
+					case 'Staging':
+					default:
+						value = 'stage';
+						break;
+				}
+				return value;
+			}
+		},
+	] );
+
+	if ( deployYMLData[ remoteEnvoirnment ] === undefined ) {
+		log( format.error( 'The remote environment does not exist in deploy.yml.' ) );
+		process.exit();
+	}
+
+	const envoirnment = deployYMLData[ remoteEnvoirnment ].stage ;
+
+	const {
 		hostName,
 		hostUser,
 		privateKey,
@@ -129,9 +162,7 @@ This tool will guide you through the setup process of a new ${ format.comment(
 		},
 	] );
 
-	let envoirnment = deployYMLData[ 'stage' ].stage;
-	const remoteDir = `/home/${hostUser}/${deployYMLData['.base'].application}/${envoirnment}`
-
+	const remoteDir = `/home/${hostUser}/${deployYMLData['.base'].application}/${envoirnment}`;
 	const ssh = new NodeSSH();
 
 	await ssh.connect({
@@ -183,14 +214,14 @@ This tool will guide you through the setup process of a new ${ format.comment(
 	] );
 
 	const tempEnvFile = `.local-server/.env.${envoirnment}`;
-	fs.copyFile('.local-server/.env', tempEnvFile, (err) => {
-		if (err) throw err;
-		console.log(`local-server/.env was copied to ${tempEnvFile}`);
-	});
+	try {
+		fs.copyFileSync('.local-server/.env', tempEnvFile );
+		log( format.success( `local-server/.env was copied to ${tempEnvFile}` ) );
+	} catch (error) {
+		console.log( error );
+	}
 
 	// process.exit();
-
-	log();
 
 	// Rename files in local checkout.
 	await runStep( 'Renaming project files', 'Could not rename files.', async () => {
@@ -261,51 +292,66 @@ This tool will guide you through the setup process of a new ${ format.comment(
 	} );
 
 	// Create .htpasswd file.
-	// Create .htaccess file from assets/.htaccess.prod.
-	// Create .htaccess file from assets/.htaccess.staging.
 
-	const xRobotsTag = 'Header add X-Robots-Tag "nofollow, noindex, noarchive, nosnippet"';
+	let htaccessContents;
+	try {
+		htaccessContents = await fsPromises.readFile( path.resolve( __dirname, '../../assets/.htaccess' ), 'utf8' );
+	} catch (error) {
+		console.log( error );
+	}
 
-	let allowFrom = "# Localhost\nAllow from 127.0.0.1";
-	const resolver = new Resolver();
-	await resolver.resolve4(hostName)
-		.then(addresses => {
-			allowFrom += '\n# Hosting IPv4';
-			addresses.forEach(element => {
-				allowFrom += `\nAllow from ${element}`;
-			});
-		})
-		.catch(err => console.log(err));
+	if ( envoirnment === 'staging' ) {
+		const xRobotsTag = 'Header add X-Robots-Tag "nofollow, noindex, noarchive, nosnippet"';
 
-	await resolver.resolve6(hostName)
-		.then(addresses => {
-			allowFrom += '\n# Hosting IPv6';
-			addresses.forEach(element => {
-				allowFrom += `\nAllow from ${element}`;
-			});
-		})
-		.catch(err => console.log(err));
+		let allowFrom = "# Localhost\nAllow from 127.0.0.1";
+		const resolver = new Resolver();
+		await resolver.resolve4(hostName)
+			.then(addresses => {
+				allowFrom += '\n# Hosting IPv4';
+				addresses.forEach(element => {
+					allowFrom += `\nAllow from ${element}`;
+				});
+			})
+			.catch(err => console.log(err));
 
-	const authName = 'Pro Senectute Kanton Zürich Staging';
-	const authUserFile = `${ remoteDir }/shared/.htpasswd`;
+		await resolver.resolve6(hostName)
+			.then(addresses => {
+				allowFrom += '\n# Hosting IPv6';
+				addresses.forEach(element => {
+					allowFrom += `\nAllow from ${element}`;
+				});
+			})
+			.catch(err => console.log(err));
 
-	const basicAuth = `
+		const basicAuth = `
 AuthType Basic
-AuthName "${authName}"
-AuthUserFile "${authUserFile}"
+AuthName "${deployYMLData['.base'].application} ${envoirnment}"
+AuthUserFile "${ remoteDir }/shared/.htpasswd"
 Require Valid-user
 ${allowFrom}
 Order allow,deny
 Satisfy Any
 `;
 
-	console.log(basicAuth);
+		const dotenvConfig = dotenv.parse( fs.readFileSync( `${WORKING_DIR}/.local-server/.env` ) );
 
-	const mediaRedirect = `
-  # Load media files from production server if they don't exist on staging.
+		const mediaRedirect = `  # Load media files from production server if they don't exist on staging.
   RewriteCond %{REQUEST_FILENAME} !-f
-  RewriteRule ^(content/uploads/.*) https://pszh.ch/wp-$1 [L]
-`;
+  RewriteRule ^(content/uploads/.*) ${dotenvConfig.URL_STAGING}/$1 [L]
+
+  RewriteRule ^index\.php$ - [L]`;
+
+		htaccessContents = xRobotsTag + '\n' + basicAuth + '\n' + htaccessContents;
+		htaccessContents = htaccessContents.replace( '  RewriteRule \^index\\.php\$ - \[L]', mediaRedirect );
+	}
+	// console.log(htaccessContents);
+
+	try {
+		fs.writeFileSync( `${WORKING_DIR}/.local-server/.htaccess.${envoirnment}`, htaccessContents );
+		log( format.success( `.htaccess.${envoirnment} saved to local-server` ) );
+	} catch(err) {
+		console.error(err);
+	}
 
 	process.exit();
 
