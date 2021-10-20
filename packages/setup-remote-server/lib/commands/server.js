@@ -90,7 +90,7 @@ This tool will guide you through the setup process of a new ${ format.comment( '
 		const deployYMLContents = await fs.readFileSync( deployYML, 'utf8' );
 		deployYMLData = YAML.parse( deployYMLContents );
 	} catch ( error ) {
-		console.log( error );
+		log( error );
 	}
 
 	if ( ! deployYMLData ) {
@@ -207,7 +207,7 @@ This tool will guide you through the setup process of a new ${ format.comment( '
 		fs.copyFileSync( '.local-server/.env', tempEnvFile );
 		log( format.success( `local-server/.env was copied to ${ tempEnvFile }` ) );
 	} catch ( error ) {
-		console.log( error );
+		log( error );
 	}
 
 	// Rename files in local checkout.
@@ -275,7 +275,7 @@ This tool will guide you through the setup process of a new ${ format.comment( '
 			'utf8'
 		);
 	} catch ( error ) {
-		console.log( error );
+		log( error );
 	}
 
 	if ( envoirnment !== 'production' ) {
@@ -300,7 +300,7 @@ This tool will guide you through the setup process of a new ${ format.comment( '
 			fs.writeFileSync( `${ dotLocalServer }/.htpasswd`, htpasswd );
 			log( format.success( `.htpasswd saved to /.local-server` ) );
 		} catch ( err ) {
-			console.error( err );
+			log( err );
 		}
 
 		const xRobotsTag = 'Header add X-Robots-Tag "nofollow, noindex, noarchive, nosnippet"';
@@ -315,7 +315,7 @@ This tool will guide you through the setup process of a new ${ format.comment( '
 					allowFrom += `\nAllow from ${ element }`;
 				} );
 			} )
-			.catch( ( err ) => console.log( err ) );
+			.catch( ( err ) => log( err ) );
 
 		await resolver
 			.resolve6( hostName )
@@ -325,7 +325,7 @@ This tool will guide you through the setup process of a new ${ format.comment( '
 					allowFrom += `\nAllow from ${ element }`;
 				} );
 			} )
-			.catch( ( err ) => console.log( err ) );
+			.catch( ( err ) => log( err ) );
 
 		const basicAuth = `
 AuthType Basic
@@ -356,7 +356,7 @@ Satisfy Any
 		fs.writeFileSync( `${ dotLocalServer }/.htaccess.${ envoirnment }`, htaccessContents );
 		log( format.success( `.htaccess.${ envoirnment } saved to /.local-server` ) );
 	} catch ( err ) {
-		console.error( err );
+		log( err );
 	}
 
 	// process.exit();
@@ -375,8 +375,8 @@ Satisfy Any
 					cwd: 'public_html',
 				} )
 				.then( ( result ) => {
-					console.log( 'STDOUT: ' + result.stdout );
-					console.log( 'STDERR: ' + result.stderr );
+					log( 'STDOUT: ' + result.stdout );
+					log( 'STDERR: ' + result.stderr );
 				} );
 			// .env file.
 			await ssh
@@ -386,10 +386,10 @@ Satisfy Any
 				)
 				.then(
 					function () {
-						console.log( 'The File thing is done' );
+						log( 'The File thing is done' );
 					},
 					function ( error ) {
-						console.log( error );
+						log( error );
 					}
 				);
 			// .htaccess.
@@ -400,10 +400,10 @@ Satisfy Any
 				)
 				.then(
 					function () {
-						console.log( 'The File thing is done' );
+						log( 'The File thing is done' );
 					},
 					function ( error ) {
-						console.log( error );
+						log( error );
 					}
 				);
 			// .htpasswd.
@@ -411,10 +411,10 @@ Satisfy Any
 				.putFile( `${ dotLocalServer }/.htpasswd`, `${ remoteDir }/shared/.htpasswd` )
 				.then(
 					function () {
-						console.log( 'The File thing is done' );
+						log( 'The File thing is done' );
 					},
 					function ( error ) {
-						console.log( error );
+						log( error );
 					}
 				);
 		} );
@@ -425,7 +425,7 @@ Satisfy Any
 		fs.unlinkSync( `${ dotLocalServer }/.htaccess.${ envoirnment }` );
 		fs.unlinkSync( `${ dotLocalServer }/.htpasswd` );
 	} catch ( err ) {
-		console.error( err );
+		log( err );
 	}
 
 	// Add comment to run deployment.
