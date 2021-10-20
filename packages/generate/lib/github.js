@@ -91,4 +91,13 @@ github.waitUntilRepositoryIsReady = async ( owner, name ) => {
 	return true;
 };
 
+github.replaceAllTopics = async ( owner, name, topics ) => {
+	const response = await octokit.rest.repos.replaceAllTopics( {
+		owner,
+		repo: name,
+		names: topics,
+	} );
+	return response.data;
+};
+
 module.exports = github;
