@@ -192,6 +192,13 @@ After the first run the token gets stored in your system's keychain and will be 
 		await github.waitUntilRepositoryIsReady( githubRepo.owner.login, githubRepo.name );
 	} );
 
+	// Add "wordpress-plugin" topic to repo.
+	await runStep( 'Adding topic to repo', 'Could not add topic to repo.', async () => {
+		await github.replaceAllTopics( githubRepo.owner.login, githubRepo.name, [
+			'wordpress-plugin',
+		] );
+	} );
+
 	const git = simpleGit();
 
 	// Clone the repository.
