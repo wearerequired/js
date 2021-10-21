@@ -175,10 +175,11 @@ This tool will guide you through the setup process of a new ${ format.comment( '
 		{
 			type: 'input',
 			name: 'remotePath',
-			default: `/home/${ hostUser }/www/${ deployYMLData[ '.base' ].application }/${ envoirnment }`,
-			// default: deployYMLData[ '.base' ].deploy_path
-			// 	.replace( '{{application}}', deployYMLData[ '.base' ].application )
-			// 	.replace( '{{stage}}', envoirnment ),
+			// default: `/home/${ hostUser }/www/${ deployYMLData[ '.base' ].application }/${ envoirnment }`,
+			default: deployYMLData[ '.base' ].deploy_path
+				.replace( '~/', `/home/${ hostUser }/` )
+				.replace( '{{application}}', deployYMLData[ '.base' ].application )
+				.replace( '{{stage}}', envoirnment ),
 			message: 'Enter the path for the site directory:',
 			validate: validatePath,
 		},
@@ -224,7 +225,7 @@ This tool will guide you through the setup process of a new ${ format.comment( '
 	const tempEnvFile = `.local-server/.env.${ envoirnment }`;
 	try {
 		fs.copyFileSync( '.local-server/.env', tempEnvFile );
-		log( format.success( `local-server/.env was copied to ${ tempEnvFile }` ) );
+		log( format.success( `local-server/.env copied to ${ tempEnvFile }` ) );
 	} catch ( error ) {
 		log( error );
 	}
@@ -378,8 +379,6 @@ Satisfy Any
 		log( err );
 	}
 
-	// process.exit();
-
 	// Sync files to remote server.
 	await ssh
 		.connect( {
@@ -395,8 +394,7 @@ Satisfy Any
 				} )
 				.then(
 					function () {
-						log( `mkdir -p ${ remotePath }/shared/wordpress/content/uploads` );
-						log( 'The folder thing is done' );
+						log( format.success( 'Directories create on remote server sucessfully' ) );
 					},
 					function ( error ) {
 						log( error );
@@ -410,9 +408,7 @@ Satisfy Any
 				)
 				.then(
 					function () {
-						log( `${ dotLocalServer }/.env.${ envoirnment }` );
-						log( `${ remotePath }/shared/wordpress/.env` );
-						log( format.success( 'The File thing is done' ) );
+						log( format.success( '.env copied to remote server sucessfully' ) );
 					},
 					function ( error ) {
 						log( error );
@@ -426,27 +422,27 @@ Satisfy Any
 				)
 				.then(
 					function () {
-						log( `${ dotLocalServer }/.htaccess.${ envoirnment }` );
-						log( `${ remotePath }/shared/wordpress/.htaccess` );
-						log( format.success( 'The File thing is done' ) );
+						log( format.success( '.htaccess copied to remote server sucessfully' ) );
 					},
 					function ( error ) {
 						log( error );
 					}
 				);
-			// .htpasswd.
-			await ssh
-				.putFile( `${ dotLocalServer }/.htpasswd`, `${ remotePath }/shared/.htpasswd` )
-				.then(
-					function () {
-						log( `${ dotLocalServer }/.htpasswd` );
-						log( `${ remotePath }/shared/.htpasswd` );
-						log( format.success( 'The File thing is done' ) );
-					},
-					function ( error ) {
-						log( error );
-					}
-				);
+			if ( envoirnment !== 'production' ) {
+				// .htpasswd.
+				await ssh
+					.putFile( `${ dotLocalServer }/.htpasswd`, `${ remotePath }/shared/.htpasswd` )
+					.then(
+						function () {
+							log(
+								format.success( '.htpasswd copied to remote server sucessfully' )
+							);
+						},
+						function ( error ) {
+							log( error );
+						}
+					);
+			}
 		} );
 
 	// Cleanup local files.
@@ -468,6 +464,7 @@ Satisfy Any
 		.replace( 'git@github.com:', 'https://github.com/' )
 		.replace( '.git', '/actions/workflows/deploy.yml' );
 	log( `Push a commit to GitHub or manually trigger a deployment: ${ repoWorkflowURl }` );
+	process.exit();
 }
 
 module.exports = server;
