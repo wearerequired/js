@@ -40,7 +40,7 @@ This tool will guide you through the setup process of a new ${ format.comment( '
 					{ key: 'y', name: 'Yes', value: true },
 					{ key: 'n', name: 'No', value: false },
 				],
-				message: 'Are you ready to proceed?',
+				message: 'Has the server and project repo been setup for Deployer?',
 			},
 		] );
 
@@ -74,14 +74,14 @@ This tool will guide you through the setup process of a new ${ format.comment( '
 	const deployYML = `${ WORKING_DIR }/deploy.yml`;
 	let deployYMLExists;
 	try {
-		await fs.existsSync( deployYML );
+		fs.existsSync( deployYML );
 		deployYMLExists = true;
 	} catch ( err ) {
 		deployYMLExists = false;
 	}
 
 	if ( ! deployYMLExists ) {
-		log( format.error( 'This project does not seem to be setup for deployment.' ) );
+		log( format.error( 'This project does not seem to be setup for Deployer.' ) );
 		process.exit();
 	}
 
@@ -150,7 +150,6 @@ This tool will guide you through the setup process of a new ${ format.comment( '
 		},
 	] );
 
-	const remoteDir = `/home/${ hostUser }/${ deployYMLData[ '.base' ].application }/${ envoirnment }`;
 	const ssh = new NodeSSH();
 
 	await ssh
@@ -163,7 +162,27 @@ This tool will guide you through the setup process of a new ${ format.comment( '
 			log( format.success( 'Successful connection to remote server!' ) );
 		} );
 
-	// process.exit();
+	log( format.warning( 'Point the domain to directory on hosting provider.' ) );
+
+	await recursiveConfirm( {
+		type: 'confirm',
+		name: 'domainPath',
+		message: 'Have you setup the domain?',
+		default: false,
+	} );
+
+	const { remotePath } = await inquirer.prompt( [
+		{
+			type: 'input',
+			name: 'remotePath',
+			default: `/home/${ hostUser }/www/${ deployYMLData[ '.base' ].application }/${ envoirnment }`,
+			// default: deployYMLData[ '.base' ].deploy_path
+			// 	.replace( '{{application}}', deployYMLData[ '.base' ].application )
+			// 	.replace( '{{stage}}', envoirnment ),
+			message: 'Enter the path for the site directory:',
+			validate: validatePath,
+		},
+	] );
 
 	log( format.warning( 'Create a new database on the hosting provider.' ) );
 
@@ -330,7 +349,7 @@ This tool will guide you through the setup process of a new ${ format.comment( '
 		const basicAuth = `
 AuthType Basic
 AuthName "${ deployYMLData[ '.base' ].application } ${ envoirnment }"
-AuthUserFile "${ remoteDir }/shared/.htpasswd"
+AuthUserFile "${ remotePath }/shared/.htpasswd"
 Require Valid-user
 ${ allowFrom }
 Order allow,deny
@@ -371,22 +390,29 @@ Satisfy Any
 		.then( async () => {
 			// Make diretorires.
 			await ssh
-				.execCommand( `mkdir -p ${ remoteDir }/shared/wordpress/content/uploads`, {
+				.execCommand( `mkdir -p ${ remotePath }/shared/wordpress/content/uploads`, {
 					cwd: 'public_html',
 				} )
-				.then( ( result ) => {
-					log( 'STDOUT: ' + result.stdout );
-					log( 'STDERR: ' + result.stderr );
-				} );
+				.then(
+					function () {
+						log( `mkdir -p ${ remotePath }/shared/wordpress/content/uploads` );
+						log( 'The folder thing is done' );
+					},
+					function ( error ) {
+						log( error );
+					}
+				);
 			// .env file.
 			await ssh
 				.putFile(
 					`${ dotLocalServer }/.env.${ envoirnment }`,
-					`${ remoteDir }/shared/wordpress/.env`
+					`${ remotePath }/shared/wordpress/.env`
 				)
 				.then(
 					function () {
-						log( 'The File thing is done' );
+						log( `${ dotLocalServer }/.env.${ envoirnment }` );
+						log( `${ remotePath }/shared/wordpress/.env` );
+						log( format.success( 'The File thing is done' ) );
 					},
 					function ( error ) {
 						log( error );
@@ -396,11 +422,13 @@ Satisfy Any
 			await ssh
 				.putFile(
 					`${ dotLocalServer }/.htaccess.${ envoirnment }`,
-					`${ remoteDir }/shared/wordpress/.htaccess`
+					`${ remotePath }/shared/wordpress/.htaccess`
 				)
 				.then(
 					function () {
-						log( 'The File thing is done' );
+						log( `${ dotLocalServer }/.htaccess.${ envoirnment }` );
+						log( `${ remotePath }/shared/wordpress/.htaccess` );
+						log( format.success( 'The File thing is done' ) );
 					},
 					function ( error ) {
 						log( error );
@@ -408,10 +436,12 @@ Satisfy Any
 				);
 			// .htpasswd.
 			await ssh
-				.putFile( `${ dotLocalServer }/.htpasswd`, `${ remoteDir }/shared/.htpasswd` )
+				.putFile( `${ dotLocalServer }/.htpasswd`, `${ remotePath }/shared/.htpasswd` )
 				.then(
 					function () {
-						log( 'The File thing is done' );
+						log( `${ dotLocalServer }/.htpasswd` );
+						log( `${ remotePath }/shared/.htpasswd` );
+						log( format.success( 'The File thing is done' ) );
 					},
 					function ( error ) {
 						log( error );
@@ -431,6 +461,13 @@ Satisfy Any
 	// Add comment to run deployment.
 
 	log( format.success( '\n✅  Done!' ) );
+	log(
+		`${ deployYMLData[ '.base' ].application } ${ envoirnment } is now installed under ${ remotePath }`
+	);
+	const repoWorkflowURl = deployYMLData[ '.base' ].repository
+		.replace( 'git@github.com:', 'https://github.com/' )
+		.replace( '.git', '/actions/workflows/deploy.yml' );
+	log( `Push a commit to GitHub or manually trigger a deployment: ${ repoWorkflowURl }` );
 }
 
 module.exports = server;
