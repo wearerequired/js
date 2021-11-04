@@ -230,13 +230,20 @@ This tool will guide you through the setup process of a new ${ format.comment( '
 		log( error );
 	}
 
+	const dotenvConfig = dotenv.parse( fs.readFileSync( `${ dotLocalServer }/.env` ) );
+
+	let httpHost = dotenvConfig.URL_STAGING;
+	if ( envoirnment === 'production' ) {
+		httpHost = dotenvConfig.URL_PRODUCTION;
+	}
+
 	// Rename files in local checkout.
 	await runStep( 'Renaming project files', 'Could not rename files.', async () => {
 		const envReplacementOptions = {
 			files: [ `${ WORKING_DIR }/${ tempEnvFile }` ],
 			from: [
 				/WP_ENV=development/g,
-				/_HTTP_HOST=/g,
+				new RegExp( `_HTTP_HOST="${ dotenvConfig._HTTP_HOST }"`, 'g' ),
 				/DB_HOST=\${MYSQL_HOST}/g,
 				/DB_NAME=\${MYSQL_DATABASE}/g,
 				/DB_USER=\${MYSQL_USER}/g,
@@ -246,7 +253,7 @@ This tool will guide you through the setup process of a new ${ format.comment( '
 			],
 			to: [
 				`WP_ENV=${ envoirnment }`,
-				`_HTTP_HOST=`,
+				`_HTTP_HOST="${ httpHost.replace( 'https://', '' ) }"`,
 				`DB_HOST=${ dbHost }`,
 				`DB_NAME=${ dbNmae }`,
 				`DB_USER=${ dbUser }`,
@@ -356,8 +363,6 @@ ${ allowFrom }
 Order allow,deny
 Satisfy Any
 `;
-
-		const dotenvConfig = dotenv.parse( fs.readFileSync( `${ dotLocalServer }/.env` ) );
 
 		const mediaRedirect = `  # Load media files from production server if they don't exist on staging.
   RewriteCond %{REQUEST_FILENAME} !-f
