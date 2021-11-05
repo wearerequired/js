@@ -3,6 +3,9 @@
 const fs = require( 'fs' );
 const md5 = require( 'apache-md5' );
 const untildify = require( 'untildify' );
+const { promisify } = require( 'util' );
+const exec = promisify( require( 'child_process' ).exec );
+const which = require( 'which' );
 const path = require( 'path' );
 const dotenv = require( 'dotenv' );
 const inquirer = require( 'inquirer' );
@@ -442,16 +445,39 @@ Satisfy Any
 		log( err );
 	}
 
-	// Add comment to run deployment.
-
-	log( format.success( '\n✅  Done!' ) );
 	log(
 		`${ deployYMLData[ '.base' ].application } ${ environment } is now installed under ${ remotePath }`
 	);
-	const repoWorkflowURl = deployYMLData[ '.base' ].repository
-		.replace( 'git@github.com:', 'https://github.com/' )
-		.replace( '.git', '/actions/workflows/deploy.yml' );
-	log( `Push a commit to GitHub or manually trigger a deployment: ${ repoWorkflowURl }` );
+
+	await recursiveConfirm( {
+		type: 'confirm',
+		name: 'repoActions',
+		message: 'Are Actions enabled on the repository?',
+		default: false,
+	} );
+
+	try {
+		const ghCommandExists = which.sync( 'gh' );
+		if ( ghCommandExists ) {
+			await runStep(
+				'Trigger deployment',
+				'Automatic deployment failed. Try running: gh workflow run deploy.yml',
+				async () => {
+					await exec( 'gh workflow run deploy.yml', {
+						WORKING_DIR,
+						env: {
+							PATH: process.env.PATH,
+							HOME: process.env.HOME,
+						},
+					} );
+				}
+			);
+		}
+	} catch ( err ) {
+		log( err );
+	}
+
+	log( format.success( '\n✅  Done!' ) );
 	process.exit();
 }
 
