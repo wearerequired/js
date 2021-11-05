@@ -18,11 +18,10 @@ async function runStep( name, abortMessage, handler ) {
 
 async function recursiveConfirm( question ) {
 	const questions = [ question ];
-	await inquirer.prompt( questions ).then( async ( answers ) => {
-		if ( ! answers[ Object.keys( answers )[ 0 ] ] ) {
-			await recursiveConfirm( question );
-		}
-	} );
+	const answers = await inquirer.prompt( questions );
+	if ( ! answers[ Object.keys( answers )[ 0 ] ] ) {
+		await recursiveConfirm( question );
+	}
 }
 
 module.exports = {

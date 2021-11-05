@@ -146,21 +146,24 @@ This tool will guide you through the setup process of a new ${ format.comment( '
 			name: 'privateKey',
 			default: '~/.ssh/id_rsa',
 			message: 'Enter the local path to your private SSH key:',
+			filter: untildify,
 			validate: validatePath,
 		},
 	] );
 
 	const ssh = new NodeSSH();
 
-	await ssh
-		.connect( {
+	try {
+		await ssh.connect( {
 			host: hostName,
 			username: hostUser,
-			privateKey: untildify( privateKey ),
-		} )
-		.then( () => {
-			log( format.success( 'Successful connection to remote server!' ) );
+			privateKey,
 		} );
+		log( format.success( 'Successful connection to remote server!' ) );
+	} catch ( error ) {
+		log( error );
+		process.exit();
+	}
 
 	log( format.warning( 'Point the domain to directory on hosting provider.' ) );
 
@@ -334,25 +337,25 @@ This tool will guide you through the setup process of a new ${ format.comment( '
 
 		let allowFrom = '# Localhost\nAllow from 127.0.0.1';
 		const resolver = new Resolver();
-		await resolver
-			.resolve4( hostName )
-			.then( ( addresses ) => {
-				allowFrom += '\n# Hosting IPv4';
-				addresses.forEach( ( element ) => {
-					allowFrom += `\nAllow from ${ element }`;
-				} );
-			} )
-			.catch( ( err ) => log( err ) );
+		try {
+			allowFrom += '\n# Hosting IPv4';
+			const addresses = await resolver.resolve4( hostName );
+			addresses.forEach( ( element ) => {
+				allowFrom += `\nAllow from ${ element }`;
+			} );
+		} catch ( err ) {
+			log( err );
+		}
 
-		await resolver
-			.resolve6( hostName )
-			.then( ( addresses ) => {
-				allowFrom += '\n# Hosting IPv6';
-				addresses.forEach( ( element ) => {
-					allowFrom += `\nAllow from ${ element }`;
-				} );
-			} )
-			.catch( ( err ) => log( err ) );
+		try {
+			allowFrom += '\n# Hosting IPv6';
+			const addresses = await resolver.resolve6( hostName )
+			addresses.forEach( ( element ) => {
+				allowFrom += `\nAllow from ${ element }`;
+			} );
+		} catch ( err ) {
+			log( err );
+		}
 
 		const basicAuth = `
 AuthType Basic
@@ -385,70 +388,50 @@ Satisfy Any
 	}
 
 	// Sync files to remote server.
-	await ssh
-		.connect( {
-			host: hostName,
-			username: hostUser,
-			privateKey: untildify( privateKey ),
-		} )
-		.then( async () => {
-			// Make diretorires.
-			await ssh
-				.execCommand( `mkdir -p ${ remotePath }/shared/wordpress/content/uploads`, {
-					cwd: 'public_html',
-				} )
-				.then(
-					function () {
-						log( format.success( 'Directories create on remote server sucessfully' ) );
-					},
-					function ( error ) {
-						log( error );
-					}
-				);
-			// .env file.
-			await ssh
-				.putFile(
-					`${ dotLocalServer }/.env.${ environment }`,
-					`${ remotePath }/shared/wordpress/.env`
-				)
-				.then(
-					function () {
-						log( format.success( '.env copied to remote server sucessfully' ) );
-					},
-					function ( error ) {
-						log( error );
-					}
-				);
-			// .htaccess.
-			await ssh
-				.putFile(
-					`${ dotLocalServer }/.htaccess.${ environment }`,
-					`${ remotePath }/shared/wordpress/.htaccess`
-				)
-				.then(
-					function () {
-						log( format.success( '.htaccess copied to remote server sucessfully' ) );
-					},
-					function ( error ) {
-						log( error );
-					}
-				);
-			if ( environment !== 'production' ) {
-				// .htpasswd.
-				await ssh
-					.putFile( `${ dotLocalServer }/.htpasswd`, `${ remotePath }/shared/.htpasswd` )
-					.then(
-						function () {
-							log(
-								format.success( '.htpasswd copied to remote server sucessfully' )
-							);
-						},
-						function ( error ) {
-							log( error );
-						}
-					);
-			}
+	// Make diretorires.
+	try {
+		await ssh.execCommand( `mkdir -p ${ remotePath }/shared/wordpress/content/uploads`, {
+			cwd: 'public_html',
 		} );
+		log( format.success( 'Directories create on remote server sucessfully' ) );
+	} catch ( error ) {
+		log( error );
+	}
+
+	// .env file.
+	try {
+		await ssh.putFile(
+			`${ dotLocalServer }/.env.${ environment }`,
+			`${ remotePath }/shared/wordpress/.env`
+		);
+		log( format.success( '.env copied to remote server sucessfully' ) );
+	} catch ( error ) {
+		log( error );
+	}
+
+	// .htaccess.
+	try {
+		await ssh.putFile(
+			`${ dotLocalServer }/.htaccess.${ environment }`,
+			`${ remotePath }/shared/wordpress/.htaccess`
+		);
+		log( format.success( '.htaccess copied to remote server sucessfully' ) );
+	} catch ( error ) {
+		log( error );
+	}
+
+	// .htpasswd.
+	if ( environment !== 'production' ) {
+		try {
+			await ssh.putFile(
+				`${ dotLocalServer }/.htpasswd`,
+				`${ remotePath }/shared/.htpasswd`
+			);
+			log( format.success( '.htpasswd copied to remote server sucessfully' ) );
+		} catch ( error ) {
+			log( error );
+		}
+	}
 
 	// Cleanup local files.
 	try {
