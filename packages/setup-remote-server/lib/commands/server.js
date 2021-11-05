@@ -138,14 +138,14 @@ This tool will guide you through the setup process of a new ${ format.comment( '
 			type: 'input',
 			name: 'hostUser',
 			default: deployYMLData[ '.base' ].user,
-			message: 'Enter the host username:',
+			message: 'Enter the SSH username for the remote server:',
 			validate: validateSlug,
 		},
 		{
 			type: 'input',
 			name: 'privateKey',
 			default: '~/.ssh/id_rsa',
-			message: 'Enter the path for SSH Key:',
+			message: 'Enter the local path to your private SSH key:',
 			validate: validatePath,
 		},
 	] );
@@ -167,7 +167,7 @@ This tool will guide you through the setup process of a new ${ format.comment( '
 	await recursiveConfirm( {
 		type: 'confirm',
 		name: 'domainPath',
-		message: 'Have you setup the domain?',
+		message: 'Have you set up the domain?',
 		default: false,
 	} );
 
@@ -211,7 +211,7 @@ This tool will guide you through the setup process of a new ${ format.comment( '
 		{
 			type: 'input',
 			name: 'dbUser',
-			message: 'Enter the db username:',
+			message: 'Enter the database username:',
 			validate: validateNotEmpty,
 		},
 		{
