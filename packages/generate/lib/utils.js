@@ -38,6 +38,7 @@ async function recursiveInquirer( question, output = [] ) {
 			name: 'askAgain',
 			message: 'Do you want to enter another?',
 			default: true,
+			when: question.when,
 		},
 	];
 	await inquirer.prompt( questions ).then( async ( answers ) => {
@@ -46,7 +47,7 @@ async function recursiveInquirer( question, output = [] ) {
 			await recursiveInquirer( question, output );
 		}
 	} );
-	return output.join(',');
+	return output.join( ',' );
 }
 
 module.exports = {
