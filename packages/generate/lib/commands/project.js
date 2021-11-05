@@ -158,12 +158,7 @@ After the first run the token gets stored in your system's keychain and will be 
 		process.exit();
 	}
 
-	const {
-		isMultisite,
-		projectHost,
-		stagingHost,
-		developmentHost,
-	} = await inquirer.prompt( [
+	const { isMultisite, projectHost, stagingHost, developmentHost } = await inquirer.prompt( [
 		{
 			type: 'confirm',
 			name: 'isMultisite',
@@ -174,14 +169,14 @@ After the first run the token gets stored in your system's keychain and will be 
 			type: 'input',
 			name: 'projectHost',
 			default: `${ projectSlug }.ch`,
-			message: 'Enter the hostname of production (example.com):',
+			message: 'Enter the hostname of production:',
 			validate: validateHostname,
 		},
 		{
 			type: 'input',
 			name: 'stagingHost',
 			default: ( answers ) => `staging.${ answers.projectHost }`,
-			message: 'Enter the hostname of staging (staging.example.com):',
+			message: 'Enter the hostname of staging:',
 			validate: validateHostname,
 		},
 		{
@@ -208,7 +203,7 @@ After the first run the token gets stored in your system's keychain and will be 
 		type: 'input',
 		name: 'stagingHostAliases',
 		default: () => 'staging.' + productionHostAliasesArray[ stagingHostAliasesCount++ ],
-		message: 'Enter the staging hostname alias (staging.example.ch):',
+		message: 'Enter the staging hostname alias:',
 		validate: validateHostname,
 		when: isMultisite,
 	} );
@@ -217,19 +212,16 @@ After the first run the token gets stored in your system's keychain and will be 
 	const developmentHostAliases = await recursiveInquirer( {
 		type: 'input',
 		name: 'developmentHostAliases',
-		default: () => productionHostAliasesArray[ developmentHostAliasesCount++ ].split( '.' )[ 0 ] + '.required.test',
-		message: 'Enter the development hostname alias (example-ch.required.test):',
+		default: () =>
+			productionHostAliasesArray[ developmentHostAliasesCount++ ].split( '.' )[ 0 ] +
+			'.required.test',
+		message: 'Enter the development hostname alias:',
 		validate: validateHostname,
 		filter: ( value ) => value.replace( '.required.test', '' ).concat( '.required.test' ),
 		when: isMultisite,
 	} );
 
-	const {
-		hostingHostname,
-		hostingUsername,
-		hostingPath,
-		tablePrefix,
-	} = await inquirer.prompt( [
+	const { hostingHostname, hostingUsername, hostingPath, tablePrefix } = await inquirer.prompt( [
 		{
 			type: 'input',
 			name: 'hostingHostname',
@@ -248,14 +240,14 @@ After the first run the token gets stored in your system's keychain and will be 
 			type: 'input',
 			name: 'hostingPath',
 			default: ( answers ) => `/home/${ answers.hostingUsername }/www/`,
-			message: 'Enter the path on the hosting server (/home/required/www/):',
+			message: 'Enter the path on the hosting server:',
 			validate: validatePath,
 		},
 		{
 			type: 'input',
 			name: 'tablePrefix',
 			default: `${ projectSlug.replace( /-/g, '_' ) }_`,
-			message: 'Enter the WordPress database table prefix (project_):',
+			message: 'Enter the WordPress database table prefix:',
 			validate: validateAlphanumericUnderscore,
 		},
 	] );
