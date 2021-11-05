@@ -98,11 +98,11 @@ This tool will guide you through the setup process of a new ${ format.comment( '
 		process.exit();
 	}
 
-	const { remoteEnvoirnment } = await inquirer.prompt( [
+	const { remoteEnvironment } = await inquirer.prompt( [
 		{
 			type: 'list',
-			name: 'remoteEnvoirnment',
-			message: 'Choose the remote envoinrment',
+			name: 'remoteEnvironment',
+			message: 'Choose the remote environment',
 			choices: [ 'Staging', 'Production' ],
 			filter( value ) {
 				switch ( value ) {
@@ -119,12 +119,12 @@ This tool will guide you through the setup process of a new ${ format.comment( '
 		},
 	] );
 
-	if ( deployYMLData[ remoteEnvoirnment ] === undefined ) {
+	if ( deployYMLData[ remoteEnvironment ] === undefined ) {
 		log( format.error( 'The remote environment does not exist in deploy.yml.' ) );
 		process.exit();
 	}
 
-	const envoirnment = deployYMLData[ remoteEnvoirnment ].stage;
+	const environment = deployYMLData[ remoteEnvironment ].stage;
 
 	const { hostName, hostUser, privateKey } = await inquirer.prompt( [
 		{
@@ -175,11 +175,11 @@ This tool will guide you through the setup process of a new ${ format.comment( '
 		{
 			type: 'input',
 			name: 'remotePath',
-			// default: `/home/${ hostUser }/www/${ deployYMLData[ '.base' ].application }/${ envoirnment }`,
+			// default: `/home/${ hostUser }/www/${ deployYMLData[ '.base' ].application }/${ environment }`,
 			default: deployYMLData[ '.base' ].deploy_path
 				.replace( '~/', `/home/${ hostUser }/` )
 				.replace( '{{application}}', deployYMLData[ '.base' ].application )
-				.replace( '{{stage}}', envoirnment ),
+				.replace( '{{stage}}', environment ),
 			message: 'Enter the path for the site directory:',
 			validate: validatePath,
 		},
@@ -222,7 +222,7 @@ This tool will guide you through the setup process of a new ${ format.comment( '
 		},
 	] );
 
-	const tempEnvFile = `.local-server/.env.${ envoirnment }`;
+	const tempEnvFile = `.local-server/.env.${ environment }`;
 	try {
 		fs.copyFileSync( '.local-server/.env', tempEnvFile );
 		log( format.success( `local-server/.env copied to ${ tempEnvFile }` ) );
@@ -233,7 +233,7 @@ This tool will guide you through the setup process of a new ${ format.comment( '
 	const dotenvConfig = dotenv.parse( fs.readFileSync( `${ dotLocalServer }/.env` ) );
 
 	let httpHost = dotenvConfig.URL_STAGING;
-	if ( envoirnment === 'production' ) {
+	if ( environment === 'production' ) {
 		httpHost = dotenvConfig.URL_PRODUCTION;
 	}
 
@@ -252,7 +252,7 @@ This tool will guide you through the setup process of a new ${ format.comment( '
 				/SCRIPT_DEBUG=true/g,
 			],
 			to: [
-				`WP_ENV=${ envoirnment }`,
+				`WP_ENV=${ environment }`,
 				`_HTTP_HOST="${ httpHost.replace( 'https://', '' ) }"`,
 				`DB_HOST=${ dbHost }`,
 				`DB_NAME=${ dbNmae }`,
@@ -264,7 +264,7 @@ This tool will guide you through the setup process of a new ${ format.comment( '
 		};
 		await replace( envReplacementOptions );
 
-		if ( envoirnment === 'staging' ) {
+		if ( environment === 'staging' ) {
 			const stagingEnvReplacementOptions = {
 				files: [ `${ WORKING_DIR }/${ tempEnvFile }` ],
 				from: [ /JETPACK_DEV_DEBUG=true/g ],
@@ -273,7 +273,7 @@ This tool will guide you through the setup process of a new ${ format.comment( '
 			await replace( stagingEnvReplacementOptions );
 		}
 
-		if ( envoirnment === 'production' ) {
+		if ( environment === 'production' ) {
 			const prodEnvReplacementOptions = {
 				files: [ `${ WORKING_DIR }/${ tempEnvFile }` ],
 				from: [
@@ -305,7 +305,7 @@ This tool will guide you through the setup process of a new ${ format.comment( '
 		log( error );
 	}
 
-	if ( envoirnment !== 'production' ) {
+	if ( environment !== 'production' ) {
 		const { basicAuthUser, basicAuthPassword } = await inquirer.prompt( [
 			{
 				type: 'input',
@@ -356,7 +356,7 @@ This tool will guide you through the setup process of a new ${ format.comment( '
 
 		const basicAuth = `
 AuthType Basic
-AuthName "${ deployYMLData[ '.base' ].application } ${ envoirnment }"
+AuthName "${ deployYMLData[ '.base' ].application } ${ environment }"
 AuthUserFile "${ remotePath }/shared/.htpasswd"
 Require Valid-user
 ${ allowFrom }
@@ -378,8 +378,8 @@ Satisfy Any
 	}
 
 	try {
-		fs.writeFileSync( `${ dotLocalServer }/.htaccess.${ envoirnment }`, htaccessContents );
-		log( format.success( `.htaccess.${ envoirnment } saved to /.local-server` ) );
+		fs.writeFileSync( `${ dotLocalServer }/.htaccess.${ environment }`, htaccessContents );
+		log( format.success( `.htaccess.${ environment } saved to /.local-server` ) );
 	} catch ( err ) {
 		log( err );
 	}
@@ -408,7 +408,7 @@ Satisfy Any
 			// .env file.
 			await ssh
 				.putFile(
-					`${ dotLocalServer }/.env.${ envoirnment }`,
+					`${ dotLocalServer }/.env.${ environment }`,
 					`${ remotePath }/shared/wordpress/.env`
 				)
 				.then(
@@ -422,7 +422,7 @@ Satisfy Any
 			// .htaccess.
 			await ssh
 				.putFile(
-					`${ dotLocalServer }/.htaccess.${ envoirnment }`,
+					`${ dotLocalServer }/.htaccess.${ environment }`,
 					`${ remotePath }/shared/wordpress/.htaccess`
 				)
 				.then(
@@ -433,7 +433,7 @@ Satisfy Any
 						log( error );
 					}
 				);
-			if ( envoirnment !== 'production' ) {
+			if ( environment !== 'production' ) {
 				// .htpasswd.
 				await ssh
 					.putFile( `${ dotLocalServer }/.htpasswd`, `${ remotePath }/shared/.htpasswd` )
@@ -452,8 +452,8 @@ Satisfy Any
 
 	// Cleanup local files.
 	try {
-		fs.unlinkSync( `${ dotLocalServer }/.env.${ envoirnment }` );
-		fs.unlinkSync( `${ dotLocalServer }/.htaccess.${ envoirnment }` );
+		fs.unlinkSync( `${ dotLocalServer }/.env.${ environment }` );
+		fs.unlinkSync( `${ dotLocalServer }/.htaccess.${ environment }` );
 		fs.unlinkSync( `${ dotLocalServer }/.htpasswd` );
 	} catch ( err ) {
 		log( err );
@@ -463,7 +463,7 @@ Satisfy Any
 
 	log( format.success( '\n✅  Done!' ) );
 	log(
-		`${ deployYMLData[ '.base' ].application } ${ envoirnment } is now installed under ${ remotePath }`
+		`${ deployYMLData[ '.base' ].application } ${ environment } is now installed under ${ remotePath }`
 	);
 	const repoWorkflowURl = deployYMLData[ '.base' ].repository
 		.replace( 'git@github.com:', 'https://github.com/' )
