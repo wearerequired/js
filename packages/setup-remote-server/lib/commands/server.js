@@ -94,6 +94,7 @@ This tool will guide you through the setup process of a new ${ format.comment( '
 		deployYMLData = YAML.parse( deployYMLContents );
 	} catch ( error ) {
 		log( error );
+		process.exit();
 	}
 
 	if ( ! deployYMLData ) {
@@ -234,6 +235,7 @@ This tool will guide you through the setup process of a new ${ format.comment( '
 		log( format.success( `local-server/.env copied to ${ tempEnvFile }` ) );
 	} catch ( error ) {
 		log( error );
+		process.exit();
 	}
 
 	const dotenvConfig = dotenv.parse( fs.readFileSync( `${ dotLocalServer }/.env` ) );
@@ -309,6 +311,7 @@ This tool will guide you through the setup process of a new ${ format.comment( '
 		);
 	} catch ( error ) {
 		log( error );
+		process.exit();
 	}
 
 	if ( environment !== 'production' ) {
@@ -332,8 +335,9 @@ This tool will guide you through the setup process of a new ${ format.comment( '
 		try {
 			fs.writeFileSync( `${ dotLocalServer }/.htpasswd`, htpasswd );
 			log( format.success( `.htpasswd saved to /.local-server` ) );
-		} catch ( err ) {
-			log( err );
+		} catch ( error ) {
+			log( error );
+			process.exit();
 		}
 
 		const xRobotsTag = 'Header add X-Robots-Tag "nofollow, noindex, noarchive, nosnippet"';
@@ -346,8 +350,9 @@ This tool will guide you through the setup process of a new ${ format.comment( '
 			addresses.forEach( ( element ) => {
 				allowFrom += `\nAllow from ${ element }`;
 			} );
-		} catch ( err ) {
-			log( err );
+		} catch ( error ) {
+			log( error );
+			process.exit();
 		}
 
 		try {
@@ -356,8 +361,9 @@ This tool will guide you through the setup process of a new ${ format.comment( '
 			addresses.forEach( ( element ) => {
 				allowFrom += `\nAllow from ${ element }`;
 			} );
-		} catch ( err ) {
-			log( err );
+		} catch ( error ) {
+			log( error );
+			process.exit();
 		}
 
 		const basicAuth = `
@@ -388,17 +394,19 @@ Satisfy Any
 		log( format.success( `.htaccess.${ environment } saved to /.local-server` ) );
 	} catch ( err ) {
 		log( err );
+		process.exit();
 	}
 
 	// Sync files to remote server.
-	// Make diretorires.
+	// Make directories.
 	try {
 		await ssh.execCommand( `mkdir -p ${ remotePath }/shared/wordpress/content/uploads`, {
 			cwd: 'public_html',
 		} );
-		log( format.success( 'Directories create on remote server sucessfully' ) );
+		log( format.success( 'Sucessfully created directories  on remote server' ) );
 	} catch ( error ) {
 		log( error );
+		process.exit();
 	}
 
 	// .env file.
@@ -407,9 +415,10 @@ Satisfy Any
 			`${ dotLocalServer }/.env.${ environment }`,
 			`${ remotePath }/shared/wordpress/.env`
 		);
-		log( format.success( '.env copied to remote server sucessfully' ) );
+		log( format.success( 'Sucessfully copied .env to remote server ' ) );
 	} catch ( error ) {
 		log( error );
+		process.exit();
 	}
 
 	// .htaccess.
@@ -418,7 +427,7 @@ Satisfy Any
 			`${ dotLocalServer }/.htaccess.${ environment }`,
 			`${ remotePath }/shared/wordpress/.htaccess`
 		);
-		log( format.success( '.htaccess copied to remote server sucessfully' ) );
+		log( format.success( 'Sucessfully copied .htaccess to remote server' ) );
 	} catch ( error ) {
 		log( error );
 	}
@@ -430,9 +439,10 @@ Satisfy Any
 				`${ dotLocalServer }/.htpasswd`,
 				`${ remotePath }/shared/.htpasswd`
 			);
-			log( format.success( '.htpasswd copied to remote server sucessfully' ) );
+			log( format.success( 'Sucessfully copied .htpasswd to remote server' ) );
 		} catch ( error ) {
 			log( error );
+			process.exit();
 		}
 	}
 
@@ -441,8 +451,8 @@ Satisfy Any
 		fs.unlinkSync( `${ dotLocalServer }/.env.${ environment }` );
 		fs.unlinkSync( `${ dotLocalServer }/.htaccess.${ environment }` );
 		fs.unlinkSync( `${ dotLocalServer }/.htpasswd` );
-	} catch ( err ) {
-		log( err );
+	} catch ( error ) {
+		log( error );
 	}
 
 	log(
@@ -473,8 +483,9 @@ Satisfy Any
 				}
 			);
 		}
-	} catch ( err ) {
-		log( err );
+	} catch ( error ) {
+		log( error );
+		process.exit();
 	}
 
 	log( format.success( '\n✅  Done!' ) );
