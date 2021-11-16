@@ -6,6 +6,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.0] - 2021-11-16
+
 ### Changed
 
 * Require PostCSS 8.
@@ -19,7 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * Remove support for shorthand hex values for `rgba()` function.
 
-## [0.1.3] - 2021-0829
+## [0.1.3] - 2021-08-29
 
 ### Added
 
