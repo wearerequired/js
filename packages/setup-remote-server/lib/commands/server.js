@@ -385,10 +385,10 @@ Satisfy Any
 			mediaRedirect
 		);
 
-		// Search-replace basic auth in .env.lokal & .local-serever/.htaccess.
+		// Search-replace basic auth in .env.lokal & .local-server/.htaccess.
 		await runStep(
-			'Search-replace basic auth for .env.lokal & .local-serever/.htaccess.',
-			'Could not search-replace basic auth for .env.lokal & .local-serever/.htaccess',
+			'Search-replace basic auth for .env.lokal & .local-server/.htaccess.',
+			'Could not search-replace basic auth for .env.lokal & .local-server/.htaccess',
 			async () => {
 				const envReplacementOptions = {
 					files: [ `${ WORKING_DIR }/.env.lokal`, `${ dotLocalServer }/.htaccess` ],
