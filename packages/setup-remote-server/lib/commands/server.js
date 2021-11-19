@@ -68,7 +68,7 @@ This tool will guide you through the setup process of a new ${ format.comment( '
 	if ( dotLocalServerExists ) {
 		log(
 			format.error(
-				'This direcotry does not seem to be a project. Please run the command within a project directory.'
+				'This directory does not seem to be a project. Please run the command within a project directory.'
 			)
 		);
 		process.exit();
@@ -94,7 +94,6 @@ This tool will guide you through the setup process of a new ${ format.comment( '
 		deployYMLData = YAML.parse( deployYMLContents );
 	} catch ( error ) {
 		log( error );
-		process.exit();
 	}
 
 	if ( ! deployYMLData ) {
@@ -156,27 +155,17 @@ This tool will guide you through the setup process of a new ${ format.comment( '
 	] );
 
 	const ssh = new NodeSSH();
-
-	try {
-		await ssh.connect( {
-			host: hostName,
-			username: hostUser,
-			privateKey,
-		} );
-		log( format.success( 'Successful connection to remote server!' ) );
-	} catch ( error ) {
-		log( error );
-		process.exit();
-	}
-
-	log( format.warning( 'Point the domain to directory on hosting provider.' ) );
-
-	await recursiveConfirm( {
-		type: 'confirm',
-		name: 'domainPath',
-		message: 'Have you set up the domain?',
-		default: false,
-	} );
+	await runStep(
+		'Connecting to the remote server',
+		'Could not connect to remote server.',
+		async () => {
+			await ssh.connect( {
+				host: hostName,
+				username: hostUser,
+				privateKey,
+			} );
+		}
+	);
 
 	const { remotePath } = await inquirer.prompt( [
 		{
@@ -192,6 +181,19 @@ This tool will guide you through the setup process of a new ${ format.comment( '
 		},
 	] );
 
+	log(
+		format.warning(
+			`Point the domain to directory "${ remotePath }/current/wordpress" on hosting provider.`
+		)
+	);
+
+	await recursiveConfirm( {
+		type: 'confirm',
+		name: 'domainPath',
+		message: 'Have you set up the domain?',
+		default: false,
+	} );
+
 	log( format.warning( 'Create a new database on the hosting provider.' ) );
 
 	await recursiveConfirm( {
@@ -201,7 +203,7 @@ This tool will guide you through the setup process of a new ${ format.comment( '
 		default: false,
 	} );
 
-	const { dbHost, dbNmae, dbUser, dbPassword } = await inquirer.prompt( [
+	const { dbHost, dbName, dbUser, dbPassword } = await inquirer.prompt( [
 		{
 			type: 'input',
 			name: 'dbHost',
@@ -211,7 +213,7 @@ This tool will guide you through the setup process of a new ${ format.comment( '
 		},
 		{
 			type: 'input',
-			name: 'dbNmae',
+			name: 'dbName',
 			message: 'Enter the database name:',
 			validate: validateNotEmpty,
 		},
@@ -230,13 +232,13 @@ This tool will guide you through the setup process of a new ${ format.comment( '
 	] );
 
 	const tempEnvFile = `.local-server/.env.${ environment }`;
-	try {
-		fs.copyFileSync( '.local-server/.env', tempEnvFile );
-		log( format.success( `local-server/.env copied to ${ tempEnvFile }` ) );
-	} catch ( error ) {
-		log( error );
-		process.exit();
-	}
+	await runStep(
+		`Copying .local-server/.env to ${ tempEnvFile }.`,
+		`Could not copy .local-server/.env to ${ tempEnvFile }.`,
+		async () => {
+			fs.copyFileSync( '.local-server/.env', tempEnvFile );
+		}
+	);
 
 	const dotenvConfig = dotenv.parse( fs.readFileSync( `${ dotLocalServer }/.env` ) );
 
@@ -245,74 +247,68 @@ This tool will guide you through the setup process of a new ${ format.comment( '
 		httpHost = dotenvConfig.URL_PRODUCTION;
 	}
 
-	// Rename files in local checkout.
-	await runStep( 'Renaming project files', 'Could not rename files.', async () => {
-		const envReplacementOptions = {
-			files: [ `${ WORKING_DIR }/${ tempEnvFile }` ],
-			from: [
-				/WP_ENV=development/g,
-				new RegExp( `_HTTP_HOST="${ dotenvConfig._HTTP_HOST }"`, 'g' ),
-				/DB_HOST=\${MYSQL_HOST}/g,
-				/DB_NAME=\${MYSQL_DATABASE}/g,
-				/DB_USER=\${MYSQL_USER}/g,
-				/DB_PASSWORD=\${MYSQL_PASSWORD}/g,
-				/WP_DEBUG_DISPLAY=true/g,
-				/SCRIPT_DEBUG=true/g,
-			],
-			to: [
-				`WP_ENV=${ environment }`,
-				`_HTTP_HOST="${ httpHost.replace( 'https://', '' ) }"`,
-				`DB_HOST=${ dbHost }`,
-				`DB_NAME=${ dbNmae }`,
-				`DB_USER=${ dbUser }`,
-				`DB_PASSWORD=${ dbPassword }`,
-				'WP_DEBUG_DISPLAY=false',
-				'SCRIPT_DEBUG=false',
-			],
-		};
-		await replace( envReplacementOptions );
-
-		if ( environment === 'staging' ) {
-			const stagingEnvReplacementOptions = {
-				files: [ `${ WORKING_DIR }/${ tempEnvFile }` ],
-				from: [ /JETPACK_DEV_DEBUG=true/g ],
-				to: [ 'JETPACK_STAGING_MODE=true' ],
-			};
-			await replace( stagingEnvReplacementOptions );
-		}
-
-		if ( environment === 'production' ) {
-			const prodEnvReplacementOptions = {
+	// Search-replace values in .env for remote server.
+	await runStep(
+		`Search-replace values for ${ tempEnvFile }.`,
+		`Could not search-replace values for ${ tempEnvFile }`,
+		async () => {
+			const envReplacementOptions = {
 				files: [ `${ WORKING_DIR }/${ tempEnvFile }` ],
 				from: [
-					/WP_DEBUG=true/g,
-					/WP_DEBUG_LOG=true/g,
-					/SAVEQUERIES=true/g,
-					/QM_DISABLED=false/g,
-					/JETPACK_DEV_DEBUG=true/g,
+					/WP_ENV=development/g,
+					new RegExp( `_HTTP_HOST="${ dotenvConfig._HTTP_HOST }"`, 'g' ),
+					/DB_HOST=\${MYSQL_HOST}/g,
+					/DB_NAME=\${MYSQL_DATABASE}/g,
+					/DB_USER=\${MYSQL_USER}/g,
+					/DB_PASSWORD=\${MYSQL_PASSWORD}/g,
+					/WP_DEBUG_DISPLAY=true/g,
+					/SCRIPT_DEBUG=true/g,
 				],
 				to: [
-					'WP_DEBUG=false',
-					'WP_DEBUG_LOG=false',
-					'SAVEQUERIES=false',
-					'QM_DISABLED=true',
-					'',
+					`WP_ENV=${ environment }`,
+					`_HTTP_HOST="${ httpHost.replace( 'https://', '' ) }"`,
+					`DB_HOST=${ dbHost }`,
+					`DB_NAME=${ dbName }`,
+					`DB_USER=${ dbUser }`,
+					`DB_PASSWORD=${ dbPassword }`,
+					'WP_DEBUG_DISPLAY=false',
+					'SCRIPT_DEBUG=false',
 				],
 			};
-			await replace( prodEnvReplacementOptions );
+			await replace( envReplacementOptions );
+
+			if ( environment === 'production' ) {
+				const prodEnvReplacementOptions = {
+					files: [ `${ WORKING_DIR }/${ tempEnvFile }` ],
+					from: [
+						/WP_DEBUG=true/g,
+						/WP_DEBUG_LOG=true/g,
+						/SAVEQUERIES=true/g,
+						/QM_DISABLED=false/g,
+					],
+					to: [
+						'WP_DEBUG=false',
+						'WP_DEBUG_LOG=false',
+						'SAVEQUERIES=false',
+						'QM_DISABLED=true',
+					],
+				};
+				await replace( prodEnvReplacementOptions );
+			}
 		}
-	} );
+	);
 
 	let htaccessContents;
-	try {
-		htaccessContents = fs.readFileSync(
-			path.resolve( __dirname, '../../assets/.htaccess' ),
-			'utf8'
-		);
-	} catch ( error ) {
-		log( error );
-		process.exit();
-	}
+	await runStep(
+		'Reading .htaccess template.',
+		'Could not read .htaccess template.',
+		async () => {
+			htaccessContents = fs.readFileSync(
+				path.resolve( __dirname, '../../assets/.htaccess' ),
+				'utf8'
+			);
+		}
+	);
 
 	if ( environment !== 'production' ) {
 		const { basicAuthUser, basicAuthPassword } = await inquirer.prompt( [
@@ -331,40 +327,41 @@ This tool will guide you through the setup process of a new ${ format.comment( '
 		] );
 
 		const htpasswd = `${ basicAuthUser }:${ md5( basicAuthPassword ) }`;
-
-		try {
-			fs.writeFileSync( `${ dotLocalServer }/.htpasswd`, htpasswd );
-			log( format.success( `.htpasswd saved to /.local-server` ) );
-		} catch ( error ) {
-			log( error );
-			process.exit();
-		}
+		await runStep(
+			'Saving .htpasswd to /.local-server.',
+			'Could not save .htpasswd to /.local-server.',
+			async () => {
+				fs.writeFileSync( `${ dotLocalServer }/.htpasswd`, htpasswd );
+			}
+		);
 
 		const xRobotsTag = 'Header add X-Robots-Tag "nofollow, noindex, noarchive, nosnippet"';
 
 		let allowFrom = '# Localhost\nAllow from 127.0.0.1';
 		const resolver = new Resolver();
-		try {
-			allowFrom += '\n# Hosting IPv4';
-			const addresses = await resolver.resolve4( hostName );
-			addresses.forEach( ( element ) => {
-				allowFrom += `\nAllow from ${ element }`;
-			} );
-		} catch ( error ) {
-			log( error );
-			process.exit();
-		}
+		await runStep(
+			`Resolving IPv4 for ${ hostName }.`,
+			`Could not resolve IPv4 for ${ hostName }.`,
+			async () => {
+				allowFrom += '\n# Hosting IPv4';
+				const addresses = await resolver.resolve4( hostName );
+				addresses.forEach( ( element ) => {
+					allowFrom += `\nAllow from ${ element }`;
+				} );
+			}
+		);
 
-		try {
-			allowFrom += '\n# Hosting IPv6';
-			const addresses = await resolver.resolve6( hostName )
-			addresses.forEach( ( element ) => {
-				allowFrom += `\nAllow from ${ element }`;
-			} );
-		} catch ( error ) {
-			log( error );
-			process.exit();
-		}
+		await runStep(
+			`Resolving IPv6 for ${ hostName }.`,
+			`Could not resolve IPv6 for ${ hostName }.`,
+			async () => {
+				allowFrom += '\n# Hosting IPv6';
+				const addresses = await resolver.resolve6( hostName );
+				addresses.forEach( ( element ) => {
+					allowFrom += `\nAllow from ${ element }`;
+				} );
+			}
+		);
 
 		const basicAuth = `
 AuthType Basic
@@ -378,7 +375,7 @@ Satisfy Any
 
 		const mediaRedirect = `  # Load media files from production server if they don't exist on staging.
   RewriteCond %{REQUEST_FILENAME} !-f
-  RewriteRule ^(content/uploads/.*) ${ dotenvConfig.URL_STAGING }/$1 [L]
+  RewriteRule ^(content/uploads/.*) ${ dotenvConfig.URL_PRODUCTION }/$1 [L]
 
   RewriteRule ^index\.php$ - [L]`;
 
@@ -387,73 +384,102 @@ Satisfy Any
 			'  RewriteRule ^index\\.php$ - [L]',
 			mediaRedirect
 		);
+
+		// Search-replace basic auth in .env.lokal & .local-serever/.htaccess.
+		await runStep(
+			'Search-replace basic auth for .env.lokal & .local-serever/.htaccess.',
+			'Could not search-replace basic auth for .env.lokal & .local-serever/.htaccess',
+			async () => {
+				const envReplacementOptions = {
+					files: [ `${ WORKING_DIR }/.env.lokal`, `${ dotLocalServer }/.htaccess` ],
+					from: [ /username:password/g ],
+					to: [ `${ basicAuthUser }:${ basicAuthPassword }` ],
+				};
+
+				await replace( envReplacementOptions );
+			}
+		);
 	}
 
-	try {
-		fs.writeFileSync( `${ dotLocalServer }/.htaccess.${ environment }`, htaccessContents );
-		log( format.success( `.htaccess.${ environment } saved to /.local-server` ) );
-	} catch ( err ) {
-		log( err );
-		process.exit();
-	}
+	await runStep(
+		'Saving .htaccess to /.local-server.',
+		'Could not save .htaccess to /.local-server.',
+		async () => {
+			fs.writeFileSync( `${ dotLocalServer }/.htaccess.${ environment }`, htaccessContents );
+		}
+	);
 
 	// Sync files to remote server.
 	// Make directories.
-	try {
-		await ssh.execCommand( `mkdir -p ${ remotePath }/shared/wordpress/content/uploads`, {
-			cwd: 'public_html',
-		} );
-		log( format.success( 'Sucessfully created directories  on remote server' ) );
-	} catch ( error ) {
-		log( error );
-		process.exit();
-	}
+	await runStep(
+		'Creating directories on remote server.',
+		'Could not create directories on remote server.',
+		async () => {
+			await ssh.execCommand( `mkdir -p ${ remotePath }/shared/wordpress/content/uploads`, {
+				cwd: 'public_html',
+			} );
+		}
+	);
+
+	// Delete "current" directory in preparation for symlink.
+	await runStep(
+		'Delete "current" directory.',
+		'Could not delete "current" directory on remote server.',
+		async () => {
+			await ssh.execCommand( `rm -rf ${ remotePath }/current`, {
+				cwd: 'public_html',
+			} );
+		}
+	);
 
 	// .env file.
-	try {
-		await ssh.putFile(
-			`${ dotLocalServer }/.env.${ environment }`,
-			`${ remotePath }/shared/wordpress/.env`
-		);
-		log( format.success( 'Sucessfully copied .env to remote server ' ) );
-	} catch ( error ) {
-		log( error );
-		process.exit();
-	}
+	await runStep(
+		'Copying .env to remote server.',
+		'Could not copy .env to remote server.',
+		async () => {
+			await ssh.putFile(
+				`${ dotLocalServer }/.env.${ environment }`,
+				`${ remotePath }/shared/wordpress/.env`
+			);
+		}
+	);
 
 	// .htaccess.
-	try {
-		await ssh.putFile(
-			`${ dotLocalServer }/.htaccess.${ environment }`,
-			`${ remotePath }/shared/wordpress/.htaccess`
-		);
-		log( format.success( 'Sucessfully copied .htaccess to remote server' ) );
-	} catch ( error ) {
-		log( error );
-	}
+	await runStep(
+		'Copying .htaccess to remote server.',
+		'Could not copy .htaccess to remote server.',
+		async () => {
+			await ssh.putFile(
+				`${ dotLocalServer }/.htaccess.${ environment }`,
+				`${ remotePath }/shared/wordpress/.htaccess`
+			);
+		}
+	);
 
 	// .htpasswd.
 	if ( environment !== 'production' ) {
-		try {
-			await ssh.putFile(
-				`${ dotLocalServer }/.htpasswd`,
-				`${ remotePath }/shared/.htpasswd`
-			);
-			log( format.success( 'Sucessfully copied .htpasswd to remote server' ) );
-		} catch ( error ) {
-			log( error );
-			process.exit();
-		}
+		await runStep(
+			'Copying .htpasswd to remote server.',
+			'Could not copy .htpasswd to remote server.',
+			async () => {
+				await ssh.putFile(
+					`${ dotLocalServer }/.htpasswd`,
+					`${ remotePath }/shared/.htpasswd`
+				);
+			}
+		);
 	}
 
 	// Cleanup local files.
-	try {
-		fs.unlinkSync( `${ dotLocalServer }/.env.${ environment }` );
-		fs.unlinkSync( `${ dotLocalServer }/.htaccess.${ environment }` );
-		fs.unlinkSync( `${ dotLocalServer }/.htpasswd` );
-	} catch ( error ) {
-		log( error );
-	}
+	await runStep(
+		'Cleaning up files from /.local-server.',
+		'Could not delete files from /.local-server.',
+		async () => {
+			fs.unlinkSync( `${ dotLocalServer }/.env.${ environment }` );
+			fs.unlinkSync( `${ dotLocalServer }/.htaccess.${ environment }` );
+			fs.unlinkSync( `${ dotLocalServer }/.htpasswd` );
+		}
+	);
 
 	log(
 		`${ deployYMLData[ '.base' ].application } ${ environment } is now installed under ${ remotePath }`
@@ -466,27 +492,31 @@ Satisfy Any
 		default: false,
 	} );
 
-	try {
-		const ghCommandExists = which.sync( 'gh' );
-		if ( ghCommandExists ) {
-			await runStep(
-				'Trigger deployment',
-				'Automatic deployment failed. Try running: gh workflow run deploy.yml',
-				async () => {
-					await exec( 'gh workflow run deploy.yml', {
-						WORKING_DIR,
-						env: {
-							PATH: process.env.PATH,
-							HOME: process.env.HOME,
-						},
-					} );
-				}
-			);
-		}
-	} catch ( error ) {
-		log( error );
-		process.exit();
+	// Version 1.9.0 needed.
+	const ghCommandExists = which.sync( 'gh' );
+	if ( ! ghCommandExists ) {
+		log( 'The GitHub cli is not installed. On Mac OS install: brew install gh' );
+		await recursiveConfirm( {
+			type: 'confirm',
+			name: 'repoActions',
+			message: 'Have you installed GitHub cli?',
+			default: false,
+		} );
 	}
+
+	await runStep(
+		'Trigger deployment',
+		'Automatic deployment failed. Try running: gh workflow run deploy.yml',
+		async () => {
+			await exec( 'gh workflow run deploy.yml', {
+				WORKING_DIR,
+				env: {
+					PATH: process.env.PATH,
+					HOME: process.env.HOME,
+				},
+			} );
+		}
+	);
 
 	log( format.success( '\n✅  Done!' ) );
 	process.exit();

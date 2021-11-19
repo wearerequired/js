@@ -5,8 +5,10 @@ CLI tool to setup remote server with the `shared` directory and files; `.env`, `
 ## Installation
 Install command globally.
 ```bash
-npm i -g npx @wearerequired/setup-remote-server@latest
+npm i -g @wearerequired/setup-remote-server@latest
 ```
+
+To trigger a deployment the [GitHub cli command](https://cli.github.com/) is used. Install on Mac OS with Brew: `brew install gh`.
 
 ## Usage
 Run command in project folder.
