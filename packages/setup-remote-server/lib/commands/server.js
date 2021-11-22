@@ -488,7 +488,7 @@ Satisfy Any
 	await recursiveConfirm( {
 		type: 'confirm',
 		name: 'repoActions',
-		message: 'Are Actions enabled on the repository?',
+		message: 'Are Actions enabled & secrets set on the repository?',
 		default: false,
 	} );
 
