@@ -495,11 +495,11 @@ Satisfy Any
 	// Version 1.9.0 needed.
 	const ghCommandExists = which.sync( 'gh' );
 	if ( ! ghCommandExists ) {
-		log( 'The GitHub cli is not installed. On Mac OS install: brew install gh' );
+		log( 'The GitHub CLI is not installed. On macOS install via: brew install gh' );
 		await recursiveConfirm( {
 			type: 'confirm',
 			name: 'repoActions',
-			message: 'Have you installed GitHub cli?',
+			message: 'Have you installed GitHub CLI?',
 			default: false,
 		} );
 	}
