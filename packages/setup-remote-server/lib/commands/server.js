@@ -106,11 +106,14 @@ This tool will guide you through the setup process of a new ${ format.comment( '
 			type: 'list',
 			name: 'remoteEnvironment',
 			message: 'Choose the remote environment',
-			choices: [ 'Staging', 'Production' ],
+			choices: [ 'Staging', 'Testing', 'Production' ],
 			filter( value ) {
 				switch ( value ) {
 					case 'Production':
 						value = 'prod';
+						break;
+					case 'Testing':
+						value = 'test';
 						break;
 					case 'Staging':
 					default:
