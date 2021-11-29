@@ -507,11 +507,22 @@ Satisfy Any
 		} );
 	}
 
+	let currentBranch;
+	await runStep( 'Fetch current branch', 'Failed to fetch current branch', async () => {
+		currentBranch = await exec( 'git branch --show-current', {
+			WORKING_DIR,
+			env: {
+				PATH: process.env.PATH,
+				HOME: process.env.HOME,
+			},
+		} );
+	} );
+
 	await runStep(
 		'Trigger deployment',
-		'Automatic deployment failed. Try running: gh workflow run deploy.yml',
+		`Automatic deployment failed. Try running: gh workflow run deploy.yml --ref ${ currentBranch }`,
 		async () => {
-			await exec( 'gh workflow run deploy.yml', {
+			await exec( `gh workflow run deploy.yml --ref ${ currentBranch }`, {
 				WORKING_DIR,
 				env: {
 					PATH: process.env.PATH,
