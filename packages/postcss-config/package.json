@@ -28,7 +28,7 @@
     "postcss-mixins": "^8.1.0",
     "postcss-nested": "^5.0.6",
     "postcss-preset-env": "^6.7.0",
-    "postcss-sort-media-queries": "^3.11.12"
+    "postcss-sort-media-queries": "^4.2.1"
   },
   "peerDependencies": {
     "postcss": "^8.0.0"
