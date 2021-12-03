@@ -130,6 +130,27 @@ This tool will guide you through the setup process of a new ${ format.comment( '
 		process.exit();
 	}
 
+	let currentBranch;
+	await runStep( 'Fetch current branch', 'Failed to fetch current branch', async () => {
+		const { stdout } = await exec( 'git branch --show-current', {
+			WORKING_DIR,
+			env: {
+				PATH: process.env.PATH,
+				HOME: process.env.HOME,
+			},
+		} );
+		currentBranch = stdout;
+	} );
+
+	if ( currentBranch !== deployYMLData[ remoteEnvironment ].branch ) {
+		log(
+			format.error(
+				'The current branch does not match the branch for the environment in deploy.yml.'
+			)
+		);
+		process.exit();
+	}
+
 	const environment = deployYMLData[ remoteEnvironment ].stage;
 
 	const { hostName, hostUser, privateKey } = await inquirer.prompt( [
@@ -480,7 +501,9 @@ Satisfy Any
 		async () => {
 			fs.unlinkSync( `${ dotLocalServer }/.env.${ environment }` );
 			fs.unlinkSync( `${ dotLocalServer }/.htaccess.${ environment }` );
-			fs.unlinkSync( `${ dotLocalServer }/.htpasswd` );
+			if ( environment === 'production' ) {
+				fs.unlinkSync( `${ dotLocalServer }/.htpasswd` );
+			}
 		}
 	);
 
@@ -506,17 +529,6 @@ Satisfy Any
 			default: false,
 		} );
 	}
-
-	let currentBranch;
-	await runStep( 'Fetch current branch', 'Failed to fetch current branch', async () => {
-		currentBranch = await exec( 'git branch --show-current', {
-			WORKING_DIR,
-			env: {
-				PATH: process.env.PATH,
-				HOME: process.env.HOME,
-			},
-		} );
-	} );
 
 	await runStep(
 		'Trigger deployment',
