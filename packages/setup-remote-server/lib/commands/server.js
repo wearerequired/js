@@ -511,10 +511,12 @@ Satisfy Any
 		`${ deployYMLData[ '.base' ].application } ${ environment } is now installed under ${ remotePath }`
 	);
 
+	log( 'Next Step: Deployment' );
+
 	await recursiveConfirm( {
 		type: 'confirm',
 		name: 'repoActions',
-		message: 'Are Actions enabled & secrets set on the repository?',
+		message: 'Are GitHub Actions enabled & secrets set on the repository?',
 		default: false,
 	} );
 
@@ -532,7 +534,7 @@ Satisfy Any
 
 	await runStep(
 		'Trigger deployment',
-		`Automatic deployment failed. Try running: gh workflow run deploy.yml --ref ${ currentBranch }`,
+		`Deployment failed. Try running: gh workflow run deploy.yml --ref ${ currentBranch }`,
 		async () => {
 			await exec( `gh workflow run deploy.yml --ref ${ currentBranch }`, {
 				WORKING_DIR,
