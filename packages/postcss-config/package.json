@@ -25,7 +25,7 @@
   "dependencies": {
     "cssnano": "^5.0.8",
     "postcss-import": "^14.0.2",
-    "postcss-mixins": "^8.1.0",
+    "postcss-mixins": "^9.0.1",
     "postcss-nested": "^5.0.6",
     "postcss-preset-env": "^6.7.0",
     "postcss-sort-media-queries": "^4.2.1"
