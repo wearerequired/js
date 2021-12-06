@@ -6,6 +6,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.0] - 2021-12-06
+
+### Changed
+
+* Update `postcss-sort-media-queries` from [v3 to v4](https://github.com/solversgroup/postcss-sort-media-queries/blob/v4.2.1/CHANGELOG.md).
+* Update `postcss-cli` from [v8 to v9](https://github.com/postcss/postcss-cli/blob/9.0.2/CHANGELOG.md).
+* Update `postcss-mixins` from [v8 to v9](https://github.com/postcss/postcss-mixins/blob/9.0.1/CHANGELOG.md).
+
 ## [0.2.0] - 2021-11-16
 
 ### Changed
