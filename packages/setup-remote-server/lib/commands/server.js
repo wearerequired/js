@@ -130,6 +130,27 @@ This tool will guide you through the setup process of a new ${ format.comment( '
 		process.exit();
 	}
 
+	let currentBranch;
+	await runStep( 'Fetch current branch', 'Failed to fetch current branch', async () => {
+		const { stdout } = await exec( 'git branch --show-current', {
+			WORKING_DIR,
+			env: {
+				PATH: process.env.PATH,
+				HOME: process.env.HOME,
+			},
+		} );
+		currentBranch = stdout;
+	} );
+
+	if ( currentBranch !== deployYMLData[ remoteEnvironment ].branch ) {
+		log(
+			format.error(
+				'The current branch does not match the branch for the environment in deploy.yml.'
+			)
+		);
+		process.exit();
+	}
+
 	const environment = deployYMLData[ remoteEnvironment ].stage;
 
 	const { hostName, hostUser, privateKey } = await inquirer.prompt( [
@@ -480,7 +501,9 @@ Satisfy Any
 		async () => {
 			fs.unlinkSync( `${ dotLocalServer }/.env.${ environment }` );
 			fs.unlinkSync( `${ dotLocalServer }/.htaccess.${ environment }` );
-			fs.unlinkSync( `${ dotLocalServer }/.htpasswd` );
+			if ( environment === 'production' ) {
+				fs.unlinkSync( `${ dotLocalServer }/.htpasswd` );
+			}
 		}
 	);
 
@@ -488,10 +511,12 @@ Satisfy Any
 		`${ deployYMLData[ '.base' ].application } ${ environment } is now installed under ${ remotePath }`
 	);
 
+	log( 'Next Step: Deployment' );
+
 	await recursiveConfirm( {
 		type: 'confirm',
 		name: 'repoActions',
-		message: 'Are Actions enabled & secrets set on the repository?',
+		message: 'Are GitHub Actions enabled & secrets set on the repository?',
 		default: false,
 	} );
 
@@ -509,9 +534,9 @@ Satisfy Any
 
 	await runStep(
 		'Trigger deployment',
-		'Automatic deployment failed. Try running: gh workflow run deploy.yml',
+		`Deployment failed. Try running: gh workflow run deploy.yml --ref ${ currentBranch }`,
 		async () => {
-			await exec( 'gh workflow run deploy.yml', {
+			await exec( `gh workflow run deploy.yml --ref ${ currentBranch }`, {
 				WORKING_DIR,
 				env: {
 					PATH: process.env.PATH,
