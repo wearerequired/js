@@ -41,7 +41,7 @@
   ],
   "scripts": {
     "test": "jest",
-    "update-fixtures": "postcss --config index.js  --no-map test/integration/fixtures/index.css --output test/integration/expected/index.css && NODE_ENV=production postcss --config index.js  --no-map test/integration/fixtures/index.css --output test/integration/expected/index.minified.css"
+    "update-fixtures": "postcss --config index.js --no-map test/integration/fixtures/index.css --output test/integration/expected/index.css && NODE_ENV=production postcss --config index.js --no-map test/integration/fixtures/index.css --output test/integration/expected/index.minified.css && BROWSERSLIST='extends @wearerequired/browserslist-config/modern' postcss --config index.js --no-map test/integration/fixtures/index.css --output test/integration/expected/index.modern.css && NODE_ENV=production BROWSERSLIST='extends @wearerequired/browserslist-config/modern' postcss --config index.js --no-map test/integration/fixtures/index.css --output test/integration/expected/index.modern.minified.css"
   },
   "browserslist": [
     "extends @wearerequired/browserslist-config"

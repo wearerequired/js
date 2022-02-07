@@ -1,0 +1,74 @@
+:root {
+	--color-primary: #fff;
+	--color-secondary: #000;
+	--color-secondary-rgb: 0, 0, 0;
+
+	--spacing-s: 10px;
+	--spacing-m: 15px;
+	--spacing-l: 30px;
+}
+
+body {
+	color: var( --color-primary );
+}
+
+.foo .bar {
+		color: var( --color-primary );
+	}
+
+body.bar .foo {
+		color: var( --color-primary );
+	}
+
+.foo.bar {
+		color: var( --color-secondary );
+	}
+
+.container {
+	padding: var( --spacing-m ) var( --spacing-l );
+	max-width: calc( 80vw - var( --spacing-l ) );
+}
+
+/* This doesn't work if custom properties are preserved */
+
+.broken-rgba-color {
+	background: rgba( --var( --color-secondary ), .5 );
+}
+
+/* This works because it's using a RGB triplet */
+
+.working-rgba-color {
+	background: rgba( --var( --color-secondary-rgb ), .5 );
+}
+
+@media only screen and ( min-width: 480px ) {
+
+body {
+		padding: 10px
+}
+}
+
+@media only screen and ( min-width: 768px ) {
+
+.container {
+		max-width: 100%
+}
+
+.post-wrap.featured .nested {
+			margin-bottom: 1.25em
+	}
+}
+
+@media only screen and ( min-width: 789px ) {
+
+body.bar .foo {
+			color: var( --color-secondary )
+	}
+}
+
+@media only screen and ( min-width: 1000px ) {
+
+.foo .bar {
+			color: var( --color-secondary )
+	}
+}
