@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+* Update `postcss-preset-env` from [v6.7 to v7.3](https://github.com/csstools/postcss-plugins/blob/c00fbfaddc6076a585a119882bf9e828cd187db2/plugin-packs/postcss-preset-env/CHANGELOG.md).
+
 ## [0.3.0] - 2021-12-06
 
 ### Changed
