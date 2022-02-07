@@ -16,7 +16,7 @@ body.bar .foo {
 
 .container {
 	padding: 15px 30px;
-	max-width: calc( 80vw - 30px);
+	max-width: calc( 80vw - 30px );
 }
 
 /* This doesn't work if custom properties are preserved */
