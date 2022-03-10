@@ -231,6 +231,7 @@ After the first run the token gets stored in your system's keychain and will be 
 				pluginDir + '/plugin.php',
 				pluginDir + '/inc/**/*.php',
 				pluginDir + '/assets/js/src/**/*.js',
+				pluginDir + '/assets/js/src/**/*.json',
 			],
 			from: [
 				/Plugin Name([^:])/g, // Ignore the colon so that in "Plugin Name: Plugin Name" only the second is replaced.
