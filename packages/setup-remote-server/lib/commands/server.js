@@ -91,7 +91,7 @@ This tool will guide you through the setup process of a new ${ format.comment( '
 	let deployYMLData;
 	try {
 		const deployYMLContents = await fs.readFileSync( deployYML, 'utf8' );
-		deployYMLData = YAML.parse( deployYMLContents );
+		deployYMLData = YAML.parse( deployYMLContents, { merge: true } );
 	} catch ( error ) {
 		log( error );
 	}
@@ -139,13 +139,13 @@ This tool will guide you through the setup process of a new ${ format.comment( '
 				HOME: process.env.HOME,
 			},
 		} );
-		currentBranch = stdout;
+		currentBranch = stdout.trim();
 	} );
 
 	if ( currentBranch !== deployYMLData[ remoteEnvironment ].branch ) {
 		log(
 			format.error(
-				'The current branch does not match the branch for the environment in deploy.yml.'
+				`The current branch '${ currentBranch }' does not match the branch '${ deployYMLData[ remoteEnvironment ].branch }' for the environment in deploy.yml .`
 			)
 		);
 		process.exit();
