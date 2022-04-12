@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 * Replace plugin slug used as text domain in `block.json` files.
+* Add `webpack.config.js` to the list of theme files for renaming.
 
 ## [0.2.0] - 2021-11-16
 

@@ -206,6 +206,7 @@ After the first run the token gets stored in your system's keychain and will be 
 				themeDir + '/composer.json',
 				themeDir + '/package.json',
 				themeDir + '/phpcs.xml.dist',
+				themeDir + '/webpack.config.js',
 				themeDir + '/style.css',
 				themeDir + '/**/*.php',
 			],
