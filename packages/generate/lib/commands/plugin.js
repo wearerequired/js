@@ -103,6 +103,13 @@ After the first run the token gets stored in your system's keychain and will be 
 		},
 		{
 			type: 'input',
+			name: 'githubSlug',
+			default: ( answers ) => answers.pluginSlug,
+			message: 'Enter the slug of the GitHub repo:',
+			validate: validateSlug,
+		},
+		{
+			type: 'input',
 			name: 'phpNamespace',
 			default: ( answers ) => 'Required\\' + pascalCase( answers.pluginSlug ),
 			message: 'Enter the PHP namespace of the plugin:',
@@ -113,13 +120,6 @@ After the first run the token gets stored in your system's keychain and will be 
 			name: 'deleteExampleBlock',
 			default: false,
 			message: 'Delete the example block?',
-		},
-		{
-			type: 'input',
-			name: 'githubSlug',
-			default: ( answers ) => answers.pluginSlug,
-			message: 'Enter the slug of the GitHub repo:',
-			validate: validateSlug,
 		},
 		{
 			type: 'confirm',
@@ -227,22 +227,18 @@ After the first run the token gets stored in your system's keychain and will be 
 
 	// Rename files in local checkout.
 	await runStep( 'Renaming plugin files', 'Could not rename files.', async () => {
-		const files = [
-			pluginDir + '/README.md',
-			pluginDir + '/composer.json',
-			pluginDir + '/package.json',
-			pluginDir + '/phpcs.xml.dist',
-			pluginDir + '/webpack.config.js',
-			pluginDir + '/plugin.php',
-			pluginDir + '/inc/**/*.php',
-			pluginDir + '/assets/js/src/**/*.js',
-		];
-		if ( ! deleteExampleBlock ) {
-			files.push( pluginDir + '/assets/js/src/**/*.json' );
-		}
-
 		const replacementOptions = {
-			files,
+			allowEmptyPaths: true,
+			files: [
+				pluginDir + '/README.md',
+				pluginDir + '/composer.json',
+				pluginDir + '/package.json',
+				pluginDir + '/phpcs.xml.dist',
+				pluginDir + '/webpack.config.js',
+				pluginDir + '/plugin.php',
+				pluginDir + '/inc/**/*.php',
+				pluginDir + '/assets/js/src/**/*.{js|json}',
+			],
 			from: [
 				/Plugin Name([^:])/g, // Ignore the colon so that in "Plugin Name: Plugin Name" only the second is replaced.
 				/Required\\PluginName/g,
