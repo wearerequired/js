@@ -216,23 +216,33 @@ After the first run the token gets stored in your system's keychain and will be 
 				from: /\tregister_block_type\(.*\);\n/s,
 				to: '',
 			} );
+
+			await replace( {
+				files: pluginDir + '/webpack.config.js',
+				from: /\n\t\t'example-block-view': '\.\/blocks\/example\/view\.js',/s,
+				to: '',
+			} );
 		} );
 	}
 
 	// Rename files in local checkout.
 	await runStep( 'Renaming plugin files', 'Could not rename files.', async () => {
+		const files = [
+			pluginDir + '/README.md',
+			pluginDir + '/composer.json',
+			pluginDir + '/package.json',
+			pluginDir + '/phpcs.xml.dist',
+			pluginDir + '/webpack.config.js',
+			pluginDir + '/plugin.php',
+			pluginDir + '/inc/**/*.php',
+			pluginDir + '/assets/js/src/**/*.js',
+		];
+		if ( ! deleteExampleBlock ) {
+			files.push( pluginDir + '/assets/js/src/**/*.json' );
+		}
+
 		const replacementOptions = {
-			files: [
-				pluginDir + '/README.md',
-				pluginDir + '/composer.json',
-				pluginDir + '/package.json',
-				pluginDir + '/phpcs.xml.dist',
-				pluginDir + '/webpack.config.js',
-				pluginDir + '/plugin.php',
-				pluginDir + '/inc/**/*.php',
-				pluginDir + '/assets/js/src/**/*.js',
-				pluginDir + '/assets/js/src/**/*.json',
-			],
+			files,
 			from: [
 				/Plugin Name([^:])/g, // Ignore the colon so that in "Plugin Name: Plugin Name" only the second is replaced.
 				/Required\\PluginName/g,
@@ -280,18 +290,21 @@ After the first run the token gets stored in your system's keychain and will be 
 		}
 	);
 
-	// Build files.
-	await runStep( 'Building plugin', 'Could not build plugin.', async () => {
-		await runShellCommand( 'npm run build', pluginDir );
-	} );
+	// Only run build if example block is not deleted.
+	if ( ! deleteExampleBlock ) {
+		// Build files.
+		await runStep( 'Building plugin', 'Could not build plugin.', async () => {
+			await runShellCommand( 'npm run build', pluginDir );
+		} );
 
-	// Commit and push local changes after build.
-	await runStep( 'Committing updated files', 'Could not push updated files.', async () => {
-		await git.cwd( pluginDir );
-		await git.add( './*' );
-		await git.commit( 'Build' );
-		await git.push();
-	} );
+		// Commit and push local changes after build.
+		await runStep( 'Committing updated files', 'Could not push updated files.', async () => {
+			await git.cwd( pluginDir );
+			await git.add( './*' );
+			await git.commit( 'Build' );
+			await git.push();
+		} );
+	}
 
 	log( format.success( '\n✅  Done!' ) );
 	log( 'Directory: ' + pluginDir );
