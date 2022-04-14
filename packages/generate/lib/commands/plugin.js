@@ -103,6 +103,13 @@ After the first run the token gets stored in your system's keychain and will be 
 		},
 		{
 			type: 'input',
+			name: 'githubSlug',
+			default: ( answers ) => answers.pluginSlug,
+			message: 'Enter the slug of the GitHub repo:',
+			validate: validateSlug,
+		},
+		{
+			type: 'input',
 			name: 'phpNamespace',
 			default: ( answers ) => 'Required\\' + pascalCase( answers.pluginSlug ),
 			message: 'Enter the PHP namespace of the plugin:',
@@ -113,13 +120,6 @@ After the first run the token gets stored in your system's keychain and will be 
 			name: 'deleteExampleBlock',
 			default: false,
 			message: 'Delete the example block?',
-		},
-		{
-			type: 'input',
-			name: 'githubSlug',
-			default: ( answers ) => answers.pluginSlug,
-			message: 'Enter the slug of the GitHub repo:',
-			validate: validateSlug,
 		},
 		{
 			type: 'confirm',
@@ -216,6 +216,12 @@ After the first run the token gets stored in your system's keychain and will be 
 				from: /\tregister_block_type\(.*\);\n/s,
 				to: '',
 			} );
+
+			await replace( {
+				files: pluginDir + '/webpack.config.js',
+				from: /\n\t\t'example-block-view': '\.\/blocks\/example\/view\.js',/s,
+				to: '',
+			} );
 		} );
 	}
 
@@ -230,8 +236,7 @@ After the first run the token gets stored in your system's keychain and will be 
 				pluginDir + '/webpack.config.js',
 				pluginDir + '/plugin.php',
 				pluginDir + '/inc/**/*.php',
-				pluginDir + '/assets/js/src/**/*.js',
-				pluginDir + '/assets/js/src/**/*.json',
+				pluginDir + '/assets/js/src/**/*.{js,json}',
 			],
 			from: [
 				/Plugin Name([^:])/g, // Ignore the colon so that in "Plugin Name: Plugin Name" only the second is replaced.
@@ -280,18 +285,21 @@ After the first run the token gets stored in your system's keychain and will be 
 		}
 	);
 
-	// Build files.
-	await runStep( 'Building plugin', 'Could not build plugin.', async () => {
-		await runShellCommand( 'npm run build', pluginDir );
-	} );
+	// Only run build if example block is not deleted.
+	if ( ! deleteExampleBlock ) {
+		// Build files.
+		await runStep( 'Building plugin', 'Could not build plugin.', async () => {
+			await runShellCommand( 'npm run build', pluginDir );
+		} );
 
-	// Commit and push local changes after build.
-	await runStep( 'Committing updated files', 'Could not push updated files.', async () => {
-		await git.cwd( pluginDir );
-		await git.add( './*' );
-		await git.commit( 'Build' );
-		await git.push();
-	} );
+		// Commit and push local changes after build.
+		await runStep( 'Committing updated files', 'Could not push updated files.', async () => {
+			await git.cwd( pluginDir );
+			await git.add( './*' );
+			await git.commit( 'Build' );
+			await git.push();
+		} );
+	}
 
 	log( format.success( '\n✅  Done!' ) );
 	log( 'Directory: ' + pluginDir );
