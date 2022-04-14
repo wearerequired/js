@@ -228,7 +228,6 @@ After the first run the token gets stored in your system's keychain and will be 
 	// Rename files in local checkout.
 	await runStep( 'Renaming plugin files', 'Could not rename files.', async () => {
 		const replacementOptions = {
-			allowEmptyPaths: true,
 			files: [
 				pluginDir + '/README.md',
 				pluginDir + '/composer.json',
@@ -237,7 +236,7 @@ After the first run the token gets stored in your system's keychain and will be 
 				pluginDir + '/webpack.config.js',
 				pluginDir + '/plugin.php',
 				pluginDir + '/inc/**/*.php',
-				pluginDir + '/assets/js/src/**/*.{js|json}',
+				pluginDir + '/assets/js/src/**/*.{js,json}',
 			],
 			from: [
 				/Plugin Name([^:])/g, // Ignore the colon so that in "Plugin Name: Plugin Name" only the second is replaced.
