@@ -23,5 +23,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * Merge of `@wearerequired/wordpress-plugin-boilerplate create` and `@wearerequired/wordpress-theme-boilerplate create`.
 
-[Unreleased]:https://github.com/wearerequired/js/compare/@wearerequired/generate@0.1.0...HEAD
+[Unreleased]: https://github.com/wearerequired/js/compare/@wearerequired/generate@0.2.0...HEAD
+[0.2.0]: https://github.com/wearerequired/js/compare/@wearerequired/generate@0.1.0...@wearerequired/generate@0.2.0
 [0.1.0]: https://github.com/wearerequired/js/releases/tag/@wearerequired/generate@0.1.0
