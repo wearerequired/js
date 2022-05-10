@@ -501,7 +501,7 @@ Satisfy Any
 		async () => {
 			fs.unlinkSync( `${ dotLocalServer }/.env.${ environment }` );
 			fs.unlinkSync( `${ dotLocalServer }/.htaccess.${ environment }` );
-			if ( environment === 'production' ) {
+			if ( environment !== 'production' ) {
 				fs.unlinkSync( `${ dotLocalServer }/.htpasswd` );
 			}
 		}
