@@ -35,7 +35,7 @@
     "replace-in-file": "^6.1.0",
     "untildify": "^4.0.0",
     "which": "^2.0.2",
-    "yaml": "2.0.0-10"
+    "yaml": "2.1.1"
   },
   "engines": {
     "node": ">=12.0"
