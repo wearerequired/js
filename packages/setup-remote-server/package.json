@@ -1,6 +1,6 @@
 {
   "name": "@wearerequired/setup-remote-server",
-  "version": "0.1.0-beta.1",
+  "version": "0.1.0",
   "description": "Setup environment on remote server for deployment.",
   "repository": {
     "type": "git",
