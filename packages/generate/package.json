@@ -27,7 +27,7 @@
     "colorette": "^1.2.1",
     "commander": "^6.0.0",
     "conf": "^10.0.1",
-    "crypto-random-string": "^3.3.1",
+    "crypto-random-string": "^5.0.0",
     "inquirer": "^8.0.0",
     "is-valid-hostname": "^1.0.2",
     "keytar": "^7.0.0",
