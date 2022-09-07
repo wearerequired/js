@@ -1,6 +1,6 @@
 {
   "name": "@wearerequired/postcss-config",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Shareable PostCSS config used by @wearerequired.",
   "main": "index.js",
   "repository": {
