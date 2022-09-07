@@ -1,7 +1,7 @@
 'use strict';
 
 const fs = require( 'fs' ).promises;
-const simpleGit = require( 'simple-git/promise' );
+const simpleGit = require( 'simple-git' );
 const inquirer = require( 'inquirer' );
 const keytar = require( 'keytar' );
 const replace = require( 'replace-in-file' );
