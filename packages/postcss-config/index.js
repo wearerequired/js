@@ -10,6 +10,7 @@ module.exports = ( ctx ) => {
 				features: {
 					'nesting-rules': false, // Uses postcss-nesting which doesn't behave like Sass.
 					'prefers-color-scheme-query': false, // Requires a browser script.
+					'has-pseudo-class': false, // Disable :has()-polyfill.
 				},
 				autoprefixer: {
 					grid: true,
