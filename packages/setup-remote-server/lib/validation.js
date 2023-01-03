@@ -10,7 +10,7 @@ const validateSlug = async ( input ) => {
 
 const validatePath = async ( input ) => {
 	// @link https://stackoverflow.com/a/42036026/850651
-	const regex = new RegExp( '^\/$|(^(?=\/)|^\.|^\.\.)(\/(?=[^/\0])[^/\0]+)*\/?$' );
+	const regex = new RegExp( '^/$|(^(?=/)|^.|^..)(/(?=[^/\0])[^/\0]+)*/?$' );
 	if ( ! input || ! regex.test( input ) ) {
 		return 'Invalid unix path.';
 	}

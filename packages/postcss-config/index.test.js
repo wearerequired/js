@@ -76,7 +76,10 @@ describe( 'postcss-config', () => {
 		const config = postcssrc.sync( { env: 'production' }, './' );
 
 		const input = readFileSync( './test/integration/fixtures/index.css', 'utf8' );
-		const output = readFileSync( './test/integration/expected/index.modern.minified.css', 'utf8' );
+		const output = readFileSync(
+			'./test/integration/expected/index.modern.minified.css',
+			'utf8'
+		);
 
 		return postcss( config.plugins )
 			.process( input, {

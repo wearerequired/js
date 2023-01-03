@@ -9,7 +9,7 @@ module.exports = {
 	],
 	settings: {
 		jest: {
-			version: 28
-		}
-	}
+			version: 28,
+		},
+	},
 };

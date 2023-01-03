@@ -72,49 +72,44 @@ After the first run the token gets stored in your system's keychain and will be 
 		log();
 	}
 
-	const {
-		githubToken,
-		projectName,
-		projectDescription,
-		projectSlug,
-		githubSlug,
-	} = await inquirer.prompt( [
-		{
-			type: 'password',
-			mask: '*',
-			name: 'githubToken',
-			default: storedGithubToken,
-			message: 'GitHub API token:',
-			validate: validateNotEmpty,
-		},
-		{
-			type: 'input',
-			name: 'projectName',
-			default: 'My Project',
-			message: 'Enter the name of the project:',
-			validate: validateNotEmpty,
-		},
-		{
-			type: 'input',
-			name: 'projectDescription',
-			default: '',
-			message: 'Enter the description of the project:',
-		},
-		{
-			type: 'input',
-			name: 'projectSlug',
-			default: ( answers ) => paramCase( answers.projectName ),
-			message: 'Enter the project slug:',
-			validate: validateSlug,
-		},
-		{
-			type: 'input',
-			name: 'githubSlug',
-			default: ( answers ) => answers.projectSlug,
-			message: 'Enter the slug for the GitHub repo:',
-			validate: validateSlug,
-		},
-	] );
+	const { githubToken, projectName, projectDescription, projectSlug, githubSlug } =
+		await inquirer.prompt( [
+			{
+				type: 'password',
+				mask: '*',
+				name: 'githubToken',
+				default: storedGithubToken,
+				message: 'GitHub API token:',
+				validate: validateNotEmpty,
+			},
+			{
+				type: 'input',
+				name: 'projectName',
+				default: 'My Project',
+				message: 'Enter the name of the project:',
+				validate: validateNotEmpty,
+			},
+			{
+				type: 'input',
+				name: 'projectDescription',
+				default: '',
+				message: 'Enter the description of the project:',
+			},
+			{
+				type: 'input',
+				name: 'projectSlug',
+				default: ( answers ) => paramCase( answers.projectName ),
+				message: 'Enter the project slug:',
+				validate: validateSlug,
+			},
+			{
+				type: 'input',
+				name: 'githubSlug',
+				default: ( answers ) => answers.projectSlug,
+				message: 'Enter the slug for the GitHub repo:',
+				validate: validateSlug,
+			},
+		] );
 
 	// Add token to the keychain.
 	if ( storedGithubToken !== githubToken ) {
@@ -313,9 +308,7 @@ ADMIN_COOKIE_PATH="/wp-admin"
 			fs.appendFile( projectDir + '/.local-server/.env', multisiteConfig );
 
 			const multisiteReplacementOptions = {
-				files: [
-					projectDir + '/.env.lokal',
-				],
+				files: [ projectDir + '/.env.lokal' ],
 				from: [
 					/#PROJECT_SERVER_ALIAS=/,
 					/#PROJECT_IS_MULTISITE=true/,
@@ -337,9 +330,7 @@ ADMIN_COOKIE_PATH="/wp-admin"
 		}
 
 		const envReplacementOptions = {
-			files: [
-				projectDir + '/.local-server/.env',
-			],
+			files: [ projectDir + '/.local-server/.env' ],
 			from: [
 				/wp_table_prefix_/g,
 				/\[\[AUTH_KEY\]\]/g,
