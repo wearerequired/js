@@ -45,6 +45,18 @@ a:has(> img) {
 	display: block;
 }
 
+:focus:not(:focus-visible) {
+	outline: none;
+}
+
+form:focus-within {
+	background: rgba( 0, 0, 0, .3 );
+}
+
+input:blank {
+	background-color: yellow;
+}
+
 @media only screen and ( min-width: 480px ) {
 
 body {

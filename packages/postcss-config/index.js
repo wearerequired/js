@@ -9,8 +9,12 @@ module.exports = ( ctx ) => {
 				preserve: false, // Omit pre-polyfilled CSS.
 				features: {
 					'nesting-rules': false, // Uses postcss-nesting which doesn't behave like Sass.
-					'prefers-color-scheme-query': false, // Requires a browser script.
-					'has-pseudo-class': false, // Disable :has()-polyfill.
+					// Disable features which require a browser script.
+					'prefers-color-scheme-query': false,
+					'has-pseudo-class': false,
+					'blank-pseudo-class': false,
+					'focus-visible-pseudo-class': false,
+					'focus-within-pseudo-class': false,
 				},
 				autoprefixer: {
 					grid: true,
