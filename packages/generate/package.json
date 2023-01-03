@@ -23,7 +23,7 @@
   "homepage": "https://github.com/wearerequired/js/tree/master/packages/generate#readme",
   "dependencies": {
     "@octokit/request-error": "^3.0.2",
-    "@octokit/rest": "^18.0.3",
+    "@octokit/rest": "^19.0.5",
     "change-case": "^4.1.1",
     "colorette": "^1.2.1",
     "commander": "^6.0.0",
