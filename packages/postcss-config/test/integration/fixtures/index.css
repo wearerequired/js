@@ -61,3 +61,7 @@ body {
 		}
 	}
 }
+
+a:has(> img) {
+	display: block;
+}
