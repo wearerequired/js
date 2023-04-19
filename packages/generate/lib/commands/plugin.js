@@ -209,7 +209,7 @@ After the first run the token gets stored in your system's keychain and will be 
 	// Optional: Remove the example block.
 	if ( deleteExampleBlock ) {
 		await runStep( 'Removing example block', 'Could not remove example block.', async () => {
-			await rimraf( pluginDir + '/assets/js/src/blocks/example' );
+			await rimraf( pluginDir + '/assets/src/blocks/example' );
 
 			await replace( {
 				files: pluginDir + '/inc/Blocks/namespace.php',
@@ -236,7 +236,7 @@ After the first run the token gets stored in your system's keychain and will be 
 				pluginDir + '/webpack.config.js',
 				pluginDir + '/plugin.php',
 				pluginDir + '/inc/**/*.php',
-				pluginDir + '/assets/js/src/**/*.{js,json}',
+				pluginDir + '/assets/src/**/*.{ts,tsx,js,json,css}',
 			],
 			from: [
 				/Plugin Name([^:])/g, // Ignore the colon so that in "Plugin Name: Plugin Name" only the second is replaced.
