@@ -67,7 +67,7 @@ After the first run the token gets stored in your system's keychain and will be 
 		themeSlug: '',
 		githubSlug: '',
 		phpNamespace: '',
-		privateRepo: false,
+		privateRepo: true,
 	};
 
 	const lastInput = config.get( 'themeLastInput' );

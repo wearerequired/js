@@ -70,7 +70,7 @@ After the first run the token gets stored in your system's keychain and will be 
 		githubSlug: '',
 		phpNamespace: '',
 		deleteExampleBlock: false,
-		privateRepo: false,
+		privateRepo: true,
 	};
 
 	const lastInput = config.get( 'pluginLastInput' );
