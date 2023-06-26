@@ -63,6 +63,41 @@ After the first run the token gets stored in your system's keychain and will be 
 		log();
 	}
 
+	let defaultInput = {
+		pluginName: 'My Plugin',
+		pluginDescription: '',
+		pluginSlug: '',
+		githubSlug: '',
+		phpNamespace: '',
+		deleteExampleBlock: false,
+		privateRepo: false,
+	};
+
+	const lastInput = config.get( 'pluginLastInput' );
+	if ( lastInput ) {
+		const { useLastInput } = await inquirer.prompt( [
+			{
+				type: 'expand',
+				name: 'useLastInput',
+				default: 0,
+				choices: [
+					{ key: 'y', name: 'Yes', value: true },
+					{ key: 'n', name: 'No', value: false },
+				],
+				message: 'Use last input as default?',
+			},
+		] );
+
+		log();
+
+		if ( useLastInput ) {
+			defaultInput = {
+				...defaultInput,
+				...lastInput,
+			};
+		}
+	}
+
 	const {
 		githubToken,
 		pluginName,
@@ -84,47 +119,48 @@ After the first run the token gets stored in your system's keychain and will be 
 		{
 			type: 'input',
 			name: 'pluginName',
-			default: 'My Plugin',
+			default: defaultInput.pluginName,
 			message: 'Enter the name of the plugin:',
 			validate: validateNotEmpty,
 		},
 		{
 			type: 'input',
 			name: 'pluginDescription',
-			default: '',
+			default: defaultInput.pluginDescription,
 			message: 'Enter the description of the plugin:',
 		},
 		{
 			type: 'input',
 			name: 'pluginSlug',
-			default: ( answers ) => paramCase( answers.pluginName ),
+			default: ( answers ) => defaultInput.pluginSlug || paramCase( answers.pluginName ),
 			message: 'Enter the slug of the plugin:',
 			validate: validateSlug,
 		},
 		{
 			type: 'input',
 			name: 'githubSlug',
-			default: ( answers ) => answers.pluginSlug,
+			default: ( answers ) => defaultInput.githubSlug || answers.pluginSlug,
 			message: 'Enter the slug of the GitHub repo:',
 			validate: validateSlug,
 		},
 		{
 			type: 'input',
 			name: 'phpNamespace',
-			default: ( answers ) => 'Required\\' + pascalCase( answers.pluginSlug ),
+			default: ( answers ) =>
+				defaultInput.phpNamespace || 'Required\\' + pascalCase( answers.pluginSlug ),
 			message: 'Enter the PHP namespace of the plugin:',
 			validate: validatePHPNamespace,
 		},
 		{
 			type: 'confirm',
 			name: 'deleteExampleBlock',
-			default: false,
+			default: defaultInput.deleteExampleBlock,
 			message: 'Delete the example block?',
 		},
 		{
 			type: 'confirm',
 			name: 'privateRepo',
-			default: true,
+			default: defaultInput.privateRepo,
 			message: 'Private GitHub repo?',
 		},
 	] );
@@ -135,6 +171,17 @@ After the first run the token gets stored in your system's keychain and will be 
 	if ( storedGithubToken !== githubToken ) {
 		await keytar.setPassword( 'required-generate', 'github', githubToken );
 	}
+
+	// Store last input in config.
+	config.set( 'pluginLastInput', {
+		pluginName,
+		pluginDescription,
+		pluginSlug,
+		phpNamespace,
+		deleteExampleBlock,
+		githubSlug,
+		privateRepo,
+	} );
 
 	const githubOrganization = config.get( 'githubOrganization' );
 
