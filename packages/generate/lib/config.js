@@ -25,6 +25,14 @@ const schema = {
 		pattern: '^[a-zA-Z0-9-]+$',
 		default: 'wearerequired',
 	},
+	pluginLastInput: {
+		type: 'object',
+		additionalProperties: true,
+	},
+	themeLastInput: {
+		type: 'object',
+		additionalProperties: true,
+	},
 };
 
 // https://github.com/sindresorhus/conf#migrations

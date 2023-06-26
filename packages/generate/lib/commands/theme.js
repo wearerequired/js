@@ -61,6 +61,40 @@ After the first run the token gets stored in your system's keychain and will be 
 		log();
 	}
 
+	let defaultInput = {
+		themeName: 'My Theme',
+		themeDescription: '',
+		themeSlug: '',
+		githubSlug: '',
+		phpNamespace: '',
+		privateRepo: false,
+	};
+
+	const lastInput = config.get( 'themeLastInput' );
+	if ( lastInput ) {
+		const { useLastInput } = await inquirer.prompt( [
+			{
+				type: 'expand',
+				name: 'useLastInput',
+				default: 0,
+				choices: [
+					{ key: 'y', name: 'Yes', value: true },
+					{ key: 'n', name: 'No', value: false },
+				],
+				message: 'Use last input as default?',
+			},
+		] );
+
+		log();
+
+		if ( useLastInput ) {
+			defaultInput = {
+				...defaultInput,
+				...lastInput,
+			};
+		}
+	}
+
 	const {
 		githubToken,
 		themeName,
@@ -81,20 +115,20 @@ After the first run the token gets stored in your system's keychain and will be 
 		{
 			type: 'input',
 			name: 'themeName',
-			default: 'My Theme',
+			default: defaultInput.themeName,
 			message: 'Enter the name of the theme:',
 			validate: validateNotEmpty,
 		},
 		{
 			type: 'input',
 			name: 'themeDescription',
-			default: '',
+			default: defaultInput.themeDescription,
 			message: 'Enter the description of the theme:',
 		},
 		{
 			type: 'input',
 			name: 'themeSlug',
-			default: ( answers ) => paramCase( answers.themeName ),
+			default: ( answers ) => defaultInput.themeSlug || paramCase( answers.themeName ),
 			message: 'Enter the slug of the theme:',
 			validate: validateSlug,
 		},
@@ -102,6 +136,7 @@ After the first run the token gets stored in your system's keychain and will be 
 			type: 'input',
 			name: 'phpNamespace',
 			default: ( answers ) =>
+				defaultInput.phpNamespace ||
 				'Required\\' + pascalCase( answers.themeSlug.replace( '-theme', '' ) ) + '\\Theme',
 			message: 'Enter the PHP namespace of the theme:',
 			validate: validatePHPNamespace,
@@ -109,14 +144,14 @@ After the first run the token gets stored in your system's keychain and will be 
 		{
 			type: 'input',
 			name: 'githubSlug',
-			default: ( answers ) => answers.themeSlug,
+			default: ( answers ) => defaultInput.githubSlug || answers.themeSlug,
 			message: 'Enter the slug of the GitHub repo:',
 			validate: validateSlug,
 		},
 		{
 			type: 'confirm',
 			name: 'privateRepo',
-			default: true,
+			default: defaultInput.privateRepo,
 			message: 'Private GitHub repo?',
 		},
 	] );
@@ -127,6 +162,16 @@ After the first run the token gets stored in your system's keychain and will be 
 	if ( storedGithubToken !== githubToken ) {
 		await keytar.setPassword( 'required-generate', 'github', githubToken );
 	}
+
+	// Store last input in config.
+	config.set( 'themeLastInput', {
+		themeName,
+		themeDescription,
+		themeSlug,
+		phpNamespace,
+		githubSlug,
+		privateRepo,
+	} );
 
 	const githubOrganization = config.get( 'githubOrganization' );
 
