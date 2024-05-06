@@ -222,8 +222,9 @@ After the first run the token gets stored in your system's keychain and will be 
 	// Create the repository.
 	let githubRepo;
 	await runStep( 'Creating repository using template', 'Could not create repo.', async () => {
-
-		const [ templateOwner, templateName ] = config.get( isBlockTheme ? 'blockThemeTemplateRepo' : 'themeTemplateRepo' ).split( '/' );
+		const [ templateOwner, templateName ] = config
+			.get( isBlockTheme ? 'blockThemeTemplateRepo' : 'themeTemplateRepo' )
+			.split( '/' );
 		githubRepo = await github.createRepositoryUsingTemplate( {
 			templateOwner,
 			templateName,
