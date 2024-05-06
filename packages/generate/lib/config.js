@@ -10,6 +10,11 @@ const schema = {
 		pattern: '^[a-zA-Z0-9-]+/[a-zA-Z0-9.-]+$',
 		default: 'wearerequired/wordpress-plugin-boilerplate',
 	},
+	blockThemeTemplateRepo: {
+		type: 'string',
+		pattern: '^[a-zA-Z0-9-]+/[a-zA-Z0-9.-]+$',
+		default: 'wearerequired/wordpress-block-theme-boilerplate',
+	},
 	themeTemplateRepo: {
 		type: 'string',
 		pattern: '^[a-zA-Z0-9-]+/[a-zA-Z0-9.-]+$',
