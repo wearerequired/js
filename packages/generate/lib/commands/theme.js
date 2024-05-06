@@ -64,6 +64,7 @@ After the first run the token gets stored in your system's keychain and will be 
 	let defaultInput = {
 		themeName: 'My Theme',
 		themeDescription: '',
+		isBlockTheme: false,
 		themeSlug: '',
 		githubSlug: '',
 		phpNamespace: '',
@@ -99,6 +100,7 @@ After the first run the token gets stored in your system's keychain and will be 
 		githubToken,
 		themeName,
 		themeDescription,
+		isBlockTheme,
 		themeSlug,
 		phpNamespace,
 		githubSlug,
@@ -124,6 +126,12 @@ After the first run the token gets stored in your system's keychain and will be 
 			name: 'themeDescription',
 			default: defaultInput.themeDescription,
 			message: 'Enter the description of the theme:',
+		},
+		{
+			type: 'confirm',
+			name: 'isBlockTheme',
+			default: defaultInput.isBlockTheme,
+			message: 'Should this be a block theme?',
 		},
 		{
 			type: 'input',
@@ -167,6 +175,7 @@ After the first run the token gets stored in your system's keychain and will be 
 	config.set( 'themeLastInput', {
 		themeName,
 		themeDescription,
+		isBlockTheme,
 		themeSlug,
 		phpNamespace,
 		githubSlug,
@@ -213,7 +222,8 @@ After the first run the token gets stored in your system's keychain and will be 
 	// Create the repository.
 	let githubRepo;
 	await runStep( 'Creating repository using template', 'Could not create repo.', async () => {
-		const [ templateOwner, templateName ] = config.get( 'themeTemplateRepo' ).split( '/' );
+
+		const [ templateOwner, templateName ] = config.get( isBlockTheme ? 'blockThemeTemplateRepo' : 'themeTemplateRepo' ).split( '/' );
 		githubRepo = await github.createRepositoryUsingTemplate( {
 			templateOwner,
 			templateName,

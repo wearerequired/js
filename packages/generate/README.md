@@ -12,7 +12,7 @@ npx @wearerequired/generate@latest wordpress-plugin
 
 ## wordpress-theme
 
-Command for bootstrapping a new WordPress theme based on the [WordPress Theme Boilerplate](https://github.com/wearerequired/wordpress-theme-boilerplate). It offers a modern build setup and generates PHP, JS, CSS code, and everything else you need to start the theme.
+Command for bootstrapping a new WordPress theme based on the [WordPress Theme Boilerplate](https://github.com/wearerequired/wordpress-theme-boilerplate) or the [WordPress Block Theme Boilerplate](https://github.com/wearerequired/wordpress-block-theme-boilerplate). It offers a modern build setup and generates PHP, JS, CSS code, and everything else you need to start the theme.
 
 ```bash
 npx @wearerequired/generate@latest wordpress-theme
