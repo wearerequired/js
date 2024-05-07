@@ -8,10 +8,9 @@
   },
   "devDependencies": {
     "@wearerequired/browserslist-config": "file:packages/browserslist-config",
-    "@wearerequired/eslint-config": "^5.0.0",
-    "eslint": "^8.46.0",
-    "lerna": "^7.1.4",
-    "prettier": "npm:wp-prettier@2.8.5"
+    "@wearerequired/eslint-config": "^6.0.0",
+    "lerna": "^8.1.2",
+    "prettier": "npm:wp-prettier@3.0.3"
   },
   "scripts": {
     "lint-js": "eslint .",
