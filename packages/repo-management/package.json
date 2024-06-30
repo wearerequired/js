@@ -28,7 +28,7 @@
     "colorette": "^1.2.1",
     "commander": "^6.1.0",
     "conf": "^10.0.1",
-    "inquirer": "^8.0.0",
+    "inquirer": "^9.3.2",
     "keytar": "^7.0.0",
     "ora": "^5.1.0",
     "rimraf": "^3.0.2",
