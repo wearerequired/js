@@ -270,6 +270,7 @@ After the first run the token gets stored in your system's keychain and will be 
 				/Theme Name([^:])/g, // Ignore the colon so that in "Theme Name: Theme Name" only the second is replaced.
 				/Required\\ThemeName/g,
 				/Required\\\\ThemeName/g,
+				/block-theme-name/g,
 				/theme-name/g,
 				/theme_name/g,
 				/ThemeName/g,
@@ -280,6 +281,7 @@ After the first run the token gets stored in your system's keychain and will be 
 				themeName + '$1',
 				phpNamespace,
 				phpNamespace.replace( /\\/g, '\\\\' ),
+				themeSlug,
 				themeSlug,
 				snakeCase( themeSlug ),
 				camelCase( themeSlug ),
