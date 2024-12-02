@@ -96,39 +96,21 @@ This tool will guide you through the setup process of a new ${ format.comment( '
 		log( error );
 	}
 
-	if ( ! deployYMLData ) {
-		log( format.error( 'Parsing deploy.yml failed.' ) );
+	if ( ! deployYMLData?.hosts ) {
+		log( format.error( 'Parsing deploy.yml failed. No hosts?' ) );
 		process.exit();
 	}
 
-	const { remoteEnvironment } = await inquirer.prompt( [
+	const { environment } = await inquirer.prompt( [
 		{
 			type: 'list',
-			name: 'remoteEnvironment',
-			message: 'Choose the remote environment',
-			choices: [ 'Staging', 'Testing', 'Production' ],
-			filter( value ) {
-				switch ( value ) {
-					case 'Production':
-						value = 'prod';
-						break;
-					case 'Testing':
-						value = 'test';
-						break;
-					case 'Staging':
-					default:
-						value = 'stage';
-						break;
-				}
-				return value;
-			},
+			name: 'environment',
+			message: 'Choose the environment',
+			choices: Object.keys( deployYMLData.hosts ),
 		},
 	] );
 
-	if ( deployYMLData[ remoteEnvironment ] === undefined ) {
-		log( format.error( 'The remote environment does not exist in deploy.yml.' ) );
-		process.exit();
-	}
+	const hostData = deployYMLData.hosts[ environment ];
 
 	let currentBranch;
 	await runStep( 'Fetch current branch', 'Failed to fetch current branch', async () => {
@@ -142,29 +124,27 @@ This tool will guide you through the setup process of a new ${ format.comment( '
 		currentBranch = stdout.trim();
 	} );
 
-	if ( currentBranch !== deployYMLData[ remoteEnvironment ].branch ) {
+	if ( currentBranch !== hostData.branch ) {
 		log(
 			format.error(
-				`The current branch '${ currentBranch }' does not match the branch '${ deployYMLData[ remoteEnvironment ].branch }' for the environment in deploy.yml .`
+				`The current branch '${ currentBranch }' does not match the branch '${ hostData.branch }' for the environment in deploy.yml .`
 			)
 		);
 		process.exit();
 	}
 
-	const environment = deployYMLData[ remoteEnvironment ].stage;
-
 	const { hostName, hostUser, privateKey } = await inquirer.prompt( [
 		{
 			type: 'input',
 			name: 'hostName',
-			default: deployYMLData[ '.base' ].hostname,
+			default: hostData.hostname,
 			message: 'Enter the hostname for the remote server:',
 			validate: validateHostname,
 		},
 		{
 			type: 'input',
 			name: 'hostUser',
-			default: deployYMLData[ '.base' ].user,
+			default: hostData.remote_user,
 			message: 'Enter the SSH username for the remote server:',
 			validate: validateSlug,
 		},
@@ -195,10 +175,9 @@ This tool will guide you through the setup process of a new ${ format.comment( '
 		{
 			type: 'input',
 			name: 'remotePath',
-			// default: `/home/${ hostUser }/www/${ deployYMLData[ '.base' ].application }/${ environment }`,
-			default: deployYMLData[ '.base' ].deploy_path
+			default: hostData.deploy_path
 				.replace( '~/', `/home/${ hostUser }/` )
-				.replace( '{{application}}', deployYMLData[ '.base' ].application )
+				.replace( '{{application}}', hostData.application )
 				.replace( '{{stage}}', environment ),
 			message: 'Enter the path for the site directory:',
 			validate: validatePath,
@@ -280,6 +259,7 @@ This tool will guide you through the setup process of a new ${ format.comment( '
 				files: [ `${ WORKING_DIR }/${ tempEnvFile }` ],
 				from: [
 					/WP_ENV=development/g,
+					/WP_ENVIRONMENT_TYPE=development/g,
 					new RegExp( `_HTTP_HOST="${ dotenvConfig._HTTP_HOST }"`, 'g' ),
 					/DB_HOST=\${MYSQL_HOST}/g,
 					/DB_NAME=\${MYSQL_DATABASE}/g,
@@ -290,6 +270,7 @@ This tool will guide you through the setup process of a new ${ format.comment( '
 				],
 				to: [
 					`WP_ENV=${ environment }`,
+					`WP_ENVIRONMENT_TYPE=${ environment }`,
 					`_HTTP_HOST="${ httpHost.replace( 'https://', '' ) }"`,
 					`DB_HOST=${ dbHost }`,
 					`DB_NAME=${ dbName }`,
@@ -508,7 +489,7 @@ Satisfy Any
 	);
 
 	log(
-		`${ deployYMLData[ '.base' ].application } ${ environment } is now installed under ${ remotePath }`
+		`${ deployYMLData[ '.base' ].application } ${ environment } is now installed in ${ remotePath }`
 	);
 
 	log( 'Next Step: Deployment' );
