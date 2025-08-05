@@ -265,6 +265,7 @@ After the first run the token gets stored in your system's keychain and will be 
 				themeDir + '/webpack.config.js',
 				themeDir + '/style.css',
 				themeDir + '/**/*.php',
+				themeDir + '/**/*.html',
 			],
 			from: [
 				/Theme Name([^:])/g, // Ignore the colon so that in "Theme Name: Theme Name" only the second is replaced.
