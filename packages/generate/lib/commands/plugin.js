@@ -263,12 +263,6 @@ After the first run the token gets stored in your system's keychain and will be 
 				from: /\tregister_block_type\(.*\);\n/s,
 				to: '',
 			} );
-
-			await replace( {
-				files: pluginDir + '/webpack.config.js',
-				from: /\n\t\t'example-block-view': '\.\/blocks\/example\/view\.js',/s,
-				to: '',
-			} );
 		} );
 	}
 
@@ -280,7 +274,6 @@ After the first run the token gets stored in your system's keychain and will be 
 				pluginDir + '/composer.json',
 				pluginDir + '/package.json',
 				pluginDir + '/phpcs.xml.dist',
-				pluginDir + '/webpack.config.js',
 				pluginDir + '/plugin.php',
 				pluginDir + '/inc/**/*.php',
 				pluginDir + '/assets/src/**/*.{ts,tsx,js,json,css}',
