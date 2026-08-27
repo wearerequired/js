@@ -276,7 +276,7 @@ After the first run the token gets stored in your system's keychain and will be 
 				pluginDir + '/phpcs.xml.dist',
 				pluginDir + '/plugin.php',
 				pluginDir + '/inc/**/*.php',
-				pluginDir + '/assets/src/**/*.{ts,tsx,js,json,css}',
+				pluginDir + '/assets/src/**/*.{ts,tsx,js,json,css,php}',
 			],
 			from: [
 				/Plugin Name([^:])/g, // Ignore the colon so that in "Plugin Name: Plugin Name" only the second is replaced.
